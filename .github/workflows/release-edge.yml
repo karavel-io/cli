@@ -12,21 +12,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Lint and Test
+name: Release edge build
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_run:
+    workflows: [ "Lint and Test" ]
+    branches: [ main ]
+    types:
+      - completed
 
 jobs:
-  lint-and-test:
+  container-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker/setup-buildx-action@v1
+      - uses: docker/login-action@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_ROBOT_TOKEN }}
+      - uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: quay.io/karavel/cli:edge
+  binary:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+        os: [ ubuntu, macos, windows ]
+    runs-on: ${{ matrix.os }}-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
@@ -36,5 +49,7 @@ jobs:
         run: go get -u github.com/google/addlicense
       - name: Build
         run: make build
-      - name: Run tests
-        run: make test
+      - uses: 'actions/upload-artifact@v2'
+        with:
+          name: Karavel CLI ${{ matrix.os }}
+          path: ${{ github.workspace }}
