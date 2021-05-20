@@ -49,10 +49,16 @@ jobs:
         run: go get -u github.com/google/addlicense
       - name: Build
         run: make build
+      - uses: 'actions/upload-artifact@v2'
+        if: runner.os != 'Windows'
+        with:
+          name: karavel-cli-${{ runner.os }}
+          path: ${{ github.workspace }}/bin/karavel
       - name: Add exe suffix
         if: runner.os == 'Windows'
         run: mv bin/karavel bin/karavel.exe
       - uses: 'actions/upload-artifact@v2'
+        if: runner.os == 'Windows'
         with:
           name: karavel-cli-${{ runner.os }}
-          path: ${{ github.workspace }}/bin/karavel
+          path: ${{ github.workspace }}/bin/karavel.exe
