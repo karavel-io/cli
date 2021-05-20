@@ -50,7 +50,7 @@ jobs:
       - name: Build
         run: make build
       - name: Add exe suffix
-        if: runner.os === 'Windows'
+        if: runner.os == 'Windows'
         run: mv bin/karavel bin/karavel.exe
       - uses: 'actions/upload-artifact@v2'
         with:
