@@ -15,9 +15,9 @@
 package main
 
 import (
-	"github.com/mikamai/karavel/cli/pkg/action"
-	"github.com/mikamai/karavel/cli/pkg/logger"
 	"github.com/pkg/errors"
+	"github.com/projectkaravel/cli/pkg/action"
+	"github.com/projectkaravel/cli/pkg/logger"
 	"github.com/spf13/cobra"
 	"os"
 	"path/filepath"

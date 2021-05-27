@@ -20,9 +20,9 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"github.com/mikamai/karavel/cli/internal/utils"
-	"github.com/mikamai/karavel/cli/pkg/logger"
 	"github.com/pkg/errors"
+	"github.com/projectkaravel/cli/internal/utils"
+	"github.com/projectkaravel/cli/pkg/logger"
 	"io/ioutil"
 	"os"
 	"path"
@@ -31,8 +31,8 @@ import (
 )
 
 const (
-	latestReleaseURL = "https://github.com/mikamai/karavel/releases/latest/download"
-	releaseUrl       = "https://github.com/mikamai/karavel/releases/v%s/download"
+	latestReleaseURL = "https://github.com/projectkaravel/platform/releases/latest/download"
+	releaseUrl       = "https://github.com/projectkaravel/platform/releases/v%s/download"
 )
 
 type InitParams struct {

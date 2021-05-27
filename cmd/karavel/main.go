@@ -16,8 +16,8 @@ package main
 
 import (
 	"context"
-	"github.com/mikamai/karavel/cli/internal/version"
-	"github.com/mikamai/karavel/cli/pkg/logger"
+	"github.com/projectkaravel/cli/internal/version"
+	"github.com/projectkaravel/cli/pkg/logger"
 	"github.com/spf13/cobra"
 	"time"
 )
