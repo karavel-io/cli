@@ -4,7 +4,7 @@ let
 in
 pkgs.mkShell {
   buildInputs = with pkgs; [
-    go
+    go_1_15
     addlicense
     gnumake
   ];
