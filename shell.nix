@@ -7,5 +7,6 @@ pkgs.mkShell {
     go_1_15
     addlicense
     gnumake
+    unstable.goreleaser
   ];
 }
