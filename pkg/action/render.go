@@ -55,10 +55,15 @@ func Render(log logger.Logger, params RenderParams) error {
 		return errors.Wrap(err, "failed to read config file")
 	}
 
-	log.Debugf("Using channel '%s'", cfg.Channel)
-	log.Debugf("Updating Karavel Charts repository %s", cfg.HelmRepoUrl)
-	if err := helmw.SetupHelm(cfg.HelmRepoUrl); err != nil {
-		return errors.Wrap(err, "failed to setup Karavel Charts repository")
+	log.Debugf("Karavel Container Platform version %s", cfg.Version)
+	log.Debugf("Updating Karavel components stable repository %s", cfg.HelmStableRepoUrl)
+	if err := helmw.SetupHelm(cfg.Version, cfg.HelmStableRepoUrl); err != nil {
+		return errors.Wrap(err, "failed to setup Karavel stable components repository")
+	}
+
+	log.Debugf("Updating Karavel components unstable repository %s", cfg.HelmUntableRepoUrl)
+	if err := helmw.SetupHelm("unstable", cfg.HelmUntableRepoUrl); err != nil {
+		return errors.Wrap(err, "failed to setup Karavel unstable components repository")
 	}
 
 	log.Debug("Creating render plan from config")

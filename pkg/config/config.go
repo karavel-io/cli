@@ -30,18 +30,11 @@ var (
 	ErrConfigParseFailed = errors.New("failed to parse Karavel config")
 )
 
-type Channel string
-
-var (
-	ChannelNone   Channel
-	ChannelStable Channel = "stable"
-	ChannelEdge   Channel = "edge"
-)
-
 type Config struct {
-	Channel     Channel     `hcl:"channel,optional"`
-	Components  []Component `hcl:"component,block"`
-	HelmRepoUrl string      `hcl:"charts_repo,optional"`
+	Version            string      `hcl:"version"`
+	Components         []Component `hcl:"component,block"`
+	HelmStableRepoUrl  string      `hcl:"stable_repo,optional"`
+	HelmUntableRepoUrl string      `hcl:"unstable_repo,optional"`
 }
 
 func ReadFrom(logw io.Writer, filename string) (Config, error) {
@@ -65,22 +58,10 @@ func ReadFrom(logw io.Writer, filename string) (Config, error) {
 		}
 	}
 
-	if c.Channel == ChannelNone {
-		c.Channel = ChannelStable
-	}
-
-	if c.HelmRepoUrl == "" {
-		switch c.Channel {
-		case ChannelStable, ChannelNone:
-			c.HelmRepoUrl = helmw.HelmDefaultStableRepo
-		case ChannelEdge:
-			c.HelmRepoUrl = helmw.HelmDefaultEdgeRepo
-		}
-	}
-
 	for i := range c.Components {
 		cc := &c.Components[i]
 		cc.Name = strings.ToLower(cc.Name)
+
 		pp := make(map[string]cty.Value)
 		for l, a := range cc.RawParams {
 			v, err := a.Expr.Value(nil)
@@ -97,8 +78,16 @@ func ReadFrom(logw io.Writer, filename string) (Config, error) {
 		if jerr != nil {
 			return c, jerr
 		}
+
+		if strings.HasPrefix(strings.ToLower(cc.Version), "unstable:") {
+			cc.Version = strings.SplitAfter(cc.Version, ":")[1]
+			cc.Unstable = true
+		}
 		cc.JsonParams = string(j)
 	}
+
+	c.HelmStableRepoUrl = helmw.GetRepoUrl(c.Version, c.HelmStableRepoUrl)
+	c.HelmUntableRepoUrl = helmw.GetRepoUrl("unstable", c.HelmUntableRepoUrl)
 
 	return c, nil
 }

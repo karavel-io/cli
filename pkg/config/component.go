@@ -20,7 +20,8 @@ type Component struct {
 	Name          string                    `hcl:"name,label"`
 	ComponentName string                    `hcl:"component,optional"`
 	Namespace     string                    `hcl:"namespace"`
-	Version       string                    `hcl:"version"`
+	Version       string                    `hcl:"version,optional"`
 	RawParams     map[string]*hcl.Attribute `hcl:",remain"`
 	JsonParams    string
+	Unstable      bool
 }

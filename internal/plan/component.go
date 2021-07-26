@@ -61,9 +61,10 @@ type Component struct {
 	integrationsDeps map[string][]string
 	integrations     map[string]bool
 	jsonParams       string
+	unstable         bool
 }
 
-func NewComponentFromChartMetadata(meta *chart.Metadata) (Component, error) {
+func NewComponentFromChartMetadata(meta *chart.Metadata, unstable bool) (Component, error) {
 	var deps []string
 	depsCsv := meta.Annotations[dependenciesAnnotation]
 	if depsCsv != "" {
@@ -109,6 +110,7 @@ func NewComponentFromChartMetadata(meta *chart.Metadata) (Component, error) {
 		singleton:        singleton,
 		dependencies:     deps,
 		integrationsDeps: integs,
+		unstable:         unstable,
 	}, nil
 }
 
@@ -181,7 +183,7 @@ func (c *Component) Render(log logger.Logger, outdir string) error {
 		c.jsonParams = j
 	}
 
-	docs, err := helmw.TemplateChart(c.component, c.namespace, c.version, c.jsonParams)
+	docs, err := helmw.TemplateChart(c.component, c.namespace, c.version, c.jsonParams, c.unstable)
 	if err != nil {
 		return errors.Wrap(err, deferr)
 	}

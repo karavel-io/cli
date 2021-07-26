@@ -47,6 +47,8 @@ func (s *ConfigTestSuite) SetupSuite() {
 	s.logw = ioutil.Discard
 
 	s.stableCfg = s.prepareConfig(`
+version = "1970.1"
+
 component "test" {
 	version = "0.1.0"
 	namespace = "test"
@@ -56,10 +58,10 @@ component "test" {
 `)
 
 	s.edgeCfg = s.prepareConfig(`
-channel = "edge"
+version = "1970.1"
 
 component "test" {
-	version = "0.1.0-alpha"
+	version = "Unstable:0.1.0-ALPHA"
 	namespace = "test"
 
 	hello = "world"
@@ -81,8 +83,9 @@ func (s *ConfigTestSuite) TestStable() {
 		assert.NoError(err)
 	}
 
-	assert.Equal(ChannelStable, cfg.Channel)
-	assert.Equal(helmw.HelmDefaultStableRepo, cfg.HelmRepoUrl)
+	version := "1970.1"
+	assert.Equal(version, cfg.Version)
+	assert.Equal(helmw.HelmDefaultRepo+"/"+version, cfg.HelmStableRepoUrl)
 	assert.Equal(1, len(cfg.Components))
 
 	c := cfg.Components[0]
@@ -90,6 +93,7 @@ func (s *ConfigTestSuite) TestStable() {
 	assert.Equal("0.1.0", c.Version)
 	assert.Equal("test", c.Namespace)
 	assert.Equal("{\"hello\":\"world\"}", c.JsonParams)
+	assert.False(c.Unstable)
 }
 
 func (s *ConfigTestSuite) TestEdge() {
@@ -101,15 +105,17 @@ func (s *ConfigTestSuite) TestEdge() {
 		assert.NoError(err)
 	}
 
-	assert.Equal(ChannelEdge, cfg.Channel)
-	assert.Equal(helmw.HelmDefaultEdgeRepo, cfg.HelmRepoUrl)
+	version := "1970.1"
+	assert.Equal(version, cfg.Version)
+	assert.Equal(helmw.HelmDefaultRepo+"/"+version, cfg.HelmStableRepoUrl)
 	assert.Equal(1, len(cfg.Components))
 
 	c := cfg.Components[0]
 	assert.Equal("test", c.Name)
-	assert.Equal("0.1.0-alpha", c.Version)
+	assert.Equal("0.1.0-ALPHA", c.Version)
 	assert.Equal("test", c.Namespace)
 	assert.Equal("{\"hello\":\"world\"}", c.JsonParams)
+	assert.True(c.Unstable)
 }
 
 func TestReadFrom(t *testing.T) {
