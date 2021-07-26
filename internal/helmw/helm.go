@@ -15,26 +15,45 @@
 package helmw
 
 import (
+	"fmt"
 	helmclient "github.com/mittwald/go-helm-client"
 	"helm.sh/helm/v3/pkg/repo"
 )
 
 const HelmRepoName = "karavel"
-const HelmDefaultStableRepo = "https://charts.mikamai.com/karavel"
-const HelmDefaultEdgeRepo = "https://charts.mikamai.com/karavel-edge"
+const HelmDefaultRepo = "https://repository.platform.karavel.io"
 
-func SetupHelm(repoUrl string) error {
+func SetupHelm(version string, repoUrl string) error {
+	if version == "" {
+		return fmt.Errorf("version cannot be empty")
+	}
+
 	h, err := helmclient.New(&helmclient.Options{})
 	if err != nil {
 		return err
 	}
 
-	if repoUrl == "" {
-		repoUrl = HelmDefaultStableRepo
+	repoUrl = GetRepoUrl(version, repoUrl)
+
+	name := HelmRepoName
+	if version == "unstable" {
+		name = UnstableRepoName()
 	}
 
 	return h.AddOrUpdateChartRepo(repo.Entry{
-		Name: HelmRepoName,
+		Name: name,
 		URL:  repoUrl,
 	})
+}
+
+func GetRepoUrl(version string, repoUrl string) string {
+	if repoUrl == "" {
+		repoUrl = fmt.Sprintf("%s/%s", HelmDefaultRepo, version)
+	}
+
+	return repoUrl
+}
+
+func UnstableRepoName() string {
+	return fmt.Sprintf("%s-unstable", HelmRepoName)
 }

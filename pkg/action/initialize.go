@@ -15,15 +15,13 @@
 package action
 
 import (
-	"bytes"
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/projectkaravel/cli/internal/utils"
 	"github.com/projectkaravel/cli/pkg/logger"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -41,7 +39,6 @@ type InitParams struct {
 	KaravelVersion  string
 	Force           bool
 	FileUrlOverride string
-	SumUrlOverride  string
 }
 
 func Initialize(log logger.Logger, params InitParams) error {
@@ -53,24 +50,27 @@ func Initialize(log logger.Logger, params InitParams) error {
 	log.Infof("Initializing new Karavel v%s project at %s", ver, workdir)
 	log.Info()
 
-	var url string
+	var baseUrlStr string
 	if ver == "latest" {
-		url = latestReleaseURL
+		baseUrlStr = latestReleaseURL
 	} else {
-		url = fmt.Sprintf(releaseUrl, ver)
+		baseUrlStr = fmt.Sprintf(releaseUrl, ver)
 	}
+
+	baseUrl, err := url.Parse(baseUrlStr)
+	if err != nil {
+		return errors.Wrap(err, "failed to parse download URL")
+	}
+
+	log.Warnf("URL: %s", baseUrlStr)
 
 	cfgUrl := params.FileUrlOverride
 	if cfgUrl == "" {
-		cfgUrl = path.Join(url, filename)
+		baseUrl.Path = path.Join(baseUrl.Path, filename)
+		cfgUrl = baseUrl.String()
 	}
 
-	sumUrl := params.SumUrlOverride
-	if sumUrl == "" {
-		sumUrl = path.Join(url, filename+".sha256")
-	}
-
-	log.Infof("Fetching bootstrap config from %s with checksum %s", cfgUrl, sumUrl)
+	log.Infof("Fetching starting config from %s", cfgUrl)
 	log.Info()
 
 	if err := os.MkdirAll(workdir, 0755); err != nil {
@@ -98,32 +98,9 @@ func Initialize(log logger.Logger, params InitParams) error {
 	if err != nil {
 		return err
 	}
+
 	log.Info()
-
-	shaHex, err := download(ctx, log, sumUrl)
-	if err != nil {
-		return err
-	}
-	log.Info()
-
-	shaHex = bytes.TrimSpace(shaHex)
-	shaD := make([]byte, hex.DecodedLen(len(shaHex)))
-	if _, err := hex.Decode(shaD, shaHex); err != nil {
-		return err
-	}
-
-	if len(shaD) != sha256.Size {
-		return errors.Errorf("invalid SHA-256 checksum length: %d", len(shaD))
-	}
-	var sha [sha256.Size]byte
-	copy(sha[:], shaD)
-
-	sum := sha256.Sum256(cfg)
-	if sum != sha {
-		return errors.Errorf("checksum mismatch: wanted %x, got %x", sha, sum)
-	}
-
-	log.Infof("Checksum successfully validated. Writing config file to %s", filedst)
+	log.Infof("Writing config file to %s", filedst)
 	return ioutil.WriteFile(filedst, cfg, 0655)
 }
 

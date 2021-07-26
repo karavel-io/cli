@@ -15,7 +15,6 @@
 package main
 
 import (
-	"github.com/pkg/errors"
 	"github.com/projectkaravel/cli/pkg/action"
 	"github.com/projectkaravel/cli/pkg/logger"
 	"github.com/spf13/cobra"
@@ -29,7 +28,6 @@ func NewInitCommand(log logger.Logger) *cobra.Command {
 	var filename string
 	var force bool
 	var cfgUrl string
-	var sumUrl string
 
 	cmd := &cobra.Command{
 		Use:   "init [WORKDIR]",
@@ -55,17 +53,12 @@ func NewInitCommand(log logger.Logger) *cobra.Command {
 
 			ver = strings.TrimPrefix(ver, "v")
 
-			if (cfgUrl != "" && sumUrl == "") || (sumUrl != "" && cfgUrl == "") {
-				return errors.New("both --config-url and --checksum-url must be provided")
-			}
-
 			return action.Initialize(log, action.InitParams{
 				Workdir:         cwd,
 				Filename:        filename,
 				KaravelVersion:  ver,
 				Force:           force,
 				FileUrlOverride: cfgUrl,
-				SumUrlOverride:  sumUrl,
 			})
 		},
 	}
@@ -73,8 +66,7 @@ func NewInitCommand(log logger.Logger) *cobra.Command {
 	cmd.Flags().StringVarP(&ver, "version", "v", "latest", "Karavel Container Platform version to initialize")
 	cmd.Flags().StringVarP(&filename, "output-file", "o", DefaultFileName, "Karavel config file name to create")
 	cmd.Flags().BoolVar(&force, "force", false, "Overwrite the config file even if it already exists")
-	cmd.Flags().StringVar(&cfgUrl, "config-url", "", "Override the official URL pointing to the Karavel config file to download. Requires setting --checksum-url too")
-	cmd.Flags().StringVar(&sumUrl, "checksum-url", "", "Override the official URL pointing to the Karavel config file checksum to download. Requires setting --config-url too")
+	cmd.Flags().StringVar(&cfgUrl, "config-url", "", "Override the official URL pointing to the Karavel config file to download")
 
 	return cmd
 }

@@ -44,14 +44,14 @@ func NewFromConfig(log logger.Logger, cfg *config.Config) (*Plan, error) {
 			}
 
 			log.Debugf("Loading component '%s'", chartName)
-			meta, err := helmw.GetChartManifest(chartName)
+			meta, err := helmw.GetChartManifest(chartName, cc.Version, cc.Unstable)
 			if err != nil {
-				ch <- errors.Wrap(err, "failed to build plan from config")
+				ch <- errors.Wrapf(err, "failed to load component '%s'", chartName)
 				return
 			}
-			comp, err := NewComponentFromChartMetadata(meta)
+			comp, err := NewComponentFromChartMetadata(meta, cc.Unstable)
 			if err != nil {
-				ch <- errors.Wrap(err, "failed to build plan from config")
+				ch <- errors.Wrap(err, "failed to instantiate component configuration")
 				return
 			}
 			if cc.ComponentName != "" {

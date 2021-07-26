@@ -25,15 +25,25 @@ import (
 	"io"
 )
 
-func GetChartManifest(chartname string) (*chart.Metadata, error) {
-	chartname = fmt.Sprintf("%s/%s", HelmRepoName, chartname)
-	hc, err := helmclient.New(&helmclient.Options{})
+func GetChartManifest(chartName string, version string, unstable bool) (*chart.Metadata, error) {
+	repo := HelmRepoName
+	if unstable {
+		repo = UnstableRepoName()
+	}
+
+	chartName = fmt.Sprintf("%s/%s", repo, chartName)
+	hc, err := helmclient.New(&helmclient.Options{
+		Debug: true,
+	})
 	if err != nil {
 		return nil, err
 	}
 	h := hc.(*helmclient.HelmClient)
 	hshow := action.NewShow(action.ShowAll)
-	path, err := hshow.ChartPathOptions.LocateChart(chartname, h.Settings)
+	hshow.Devel = unstable
+	hshow.Version = version
+
+	path, err := hshow.LocateChart(chartName, h.Settings)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +58,11 @@ func GetChartManifest(chartname string) (*chart.Metadata, error) {
 
 type YamlDoc map[string]interface{}
 
-func TemplateChart(name string, namespace string, version string, values string) ([]YamlDoc, error) {
+func TemplateChart(name string, namespace string, version string, values string, unstable bool) ([]YamlDoc, error) {
+	repo := HelmRepoName
+	if unstable {
+		repo = UnstableRepoName()
+	}
 	hc, err := helmclient.New(&helmclient.Options{
 		Debug: true,
 	})
@@ -58,7 +72,7 @@ func TemplateChart(name string, namespace string, version string, values string)
 	h := hc.(*helmclient.HelmClient)
 
 	ch := &helmclient.ChartSpec{
-		ChartName:  fmt.Sprintf("%s/%s", HelmRepoName, name),
+		ChartName:  fmt.Sprintf("%s/%s", repo, name),
 		Namespace:  namespace,
 		Version:    version,
 		SkipCRDs:   false,
