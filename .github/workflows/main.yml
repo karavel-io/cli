@@ -62,6 +62,10 @@ jobs:
           images: |
             quay.io/karavel/cli
             ghcr.io/${{ github.repository }}
+          labels: |
+            org.opencontainers.image.title=Karavel CLI
+            org.opencontainers.image.description=The Karavel CLI
+            org.opencontainers.image.vendor=The Karavel Project
       - uses: docker/build-push-action@v2
         with:
           push: true
@@ -70,10 +74,7 @@ jobs:
   binary:
     if: github.ref == 'refs/heads/main'
     needs: [ lint-and-test ]
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
@@ -81,18 +82,13 @@ jobs:
           go-version: '1.16'
       - name: Install addlicense
         run: go get -u github.com/google/addlicense
-      - name: Build
-        run: make build
-      - uses: 'actions/upload-artifact@v2'
-        if: runner.os != 'Windows'
+      - name: Release
+        uses: goreleaser/goreleaser-action@v2
         with:
-          name: karavel-cli-${{ runner.os }}
-          path: ${{ github.workspace }}/bin/karavel
-      - name: Add exe suffix
-        if: runner.os == 'Windows'
-        run: mv bin/karavel bin/karavel.exe
+          args: release --rm-dist --snapshot
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: 'actions/upload-artifact@v2'
-        if: runner.os == 'Windows'
         with:
-          name: karavel-cli-${{ runner.os }}
-          path: ${{ github.workspace }}/bin/karavel.exe
+          name: karavel-cli
+          path: dist/karavel*/
