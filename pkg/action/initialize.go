@@ -17,9 +17,9 @@ package action
 import (
 	"context"
 	"fmt"
+	"github.com/karavel-io/cli/internal/utils"
+	"github.com/karavel-io/cli/pkg/logger"
 	"github.com/pkg/errors"
-	"github.com/projectkaravel/cli/internal/utils"
-	"github.com/projectkaravel/cli/pkg/logger"
 	"io/ioutil"
 	"net/url"
 	"os"
@@ -29,8 +29,8 @@ import (
 )
 
 const (
-	latestReleaseURL = "https://github.com/projectkaravel/platform/releases/latest/download"
-	releaseUrl       = "https://github.com/projectkaravel/platform/releases/v%s/download"
+	latestReleaseURL = "https://github.com/karavel-io/platform/releases/latest/download"
+	releaseUrl       = "https://github.com/karavel-io/platform/releases/v%s/download"
 )
 
 type InitParams struct {

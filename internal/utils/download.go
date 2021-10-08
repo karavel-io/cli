@@ -16,8 +16,8 @@ package utils
 
 import (
 	"context"
+	"github.com/karavel-io/cli/pkg/logger"
 	"github.com/pkg/errors"
-	"github.com/projectkaravel/cli/pkg/logger"
 	"io"
 	"net/http"
 	"os"

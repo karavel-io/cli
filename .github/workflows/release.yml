@@ -27,7 +27,7 @@ jobs:
         with:
           images: |
             quay.io/karavel/cli
-            ghcr.io/projectkaravel/cli
+            ghcr.io/karavel-io/cli
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}

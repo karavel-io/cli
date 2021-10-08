@@ -15,7 +15,7 @@
 package config
 
 import (
-	"github.com/projectkaravel/cli/internal/helmw"
+	"github.com/karavel-io/cli/internal/helmw"
 	"github.com/stretchr/testify/suite"
 	"io"
 	"io/ioutil"

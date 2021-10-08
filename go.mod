@@ -1,4 +1,4 @@
-module github.com/projectkaravel/cli
+module github.com/karavel-io/cli
 
 go 1.16
 

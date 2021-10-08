@@ -28,9 +28,9 @@ builds:
       - darwin
     ldflags:
       - -s -w
-      - -X github.com/projectkaravel/cli/internal/version.version={{.Version}}
-      - -X github.com/projectkaravel/cli/internal/version.gitCommit={{.Commit}}
-      - -X github.com/projectkaravel/cli/internal/version.buildDate={{.Date}}
+      - -X github.com/karavel-io/cli/internal/version.version={{.Version}}
+      - -X github.com/karavel-io/cli/internal/version.gitCommit={{.Commit}}
+      - -X github.com/karavel-io/cli/internal/version.buildDate={{.Date}}
 archives:
   - replacements:
       darwin: Darwin
@@ -65,7 +65,7 @@ release:
     <copy the relevant CHANGELOG.md entries>
 
     ### Docker images
-    - `docker pull ghcr.io/projectkaravel/cli:{{ .Tag }}`
+    - `docker pull ghcr.io/karavel-io/cli:{{ .Tag }}`
     - `docker pull quay.io/karavel/cli:{{ .Tag }}`
 changelog:
   skip: true

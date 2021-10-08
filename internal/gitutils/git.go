@@ -19,8 +19,8 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/cache"
 	"github.com/go-git/go-git/v5/storage/filesystem"
+	"github.com/karavel-io/cli/pkg/logger"
 	"github.com/pkg/errors"
-	"github.com/projectkaravel/cli/pkg/logger"
 	"os"
 	"path/filepath"
 )

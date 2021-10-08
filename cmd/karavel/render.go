@@ -16,8 +16,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/projectkaravel/cli/pkg/action"
-	"github.com/projectkaravel/cli/pkg/logger"
+	"github.com/karavel-io/cli/pkg/action"
+	"github.com/karavel-io/cli/pkg/logger"
 	"github.com/spf13/cobra"
 	"os"
 	"path/filepath"

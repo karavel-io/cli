@@ -16,10 +16,10 @@ package plan
 
 import (
 	"fmt"
+	"github.com/karavel-io/cli/internal/helmw"
+	"github.com/karavel-io/cli/pkg/config"
+	"github.com/karavel-io/cli/pkg/logger"
 	"github.com/pkg/errors"
-	"github.com/projectkaravel/cli/internal/helmw"
-	"github.com/projectkaravel/cli/pkg/config"
-	"github.com/projectkaravel/cli/pkg/logger"
 	"sync"
 )
 
