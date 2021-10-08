@@ -91,4 +91,11 @@ jobs:
       - uses: 'actions/upload-artifact@v2'
         with:
           name: karavel-cli
-          path: dist/karavel*/
+          path: |
+            dist/karavel_linux_386/*
+            dist/karavel_linux_amd64/*
+            dist/karavel_linux_arm64/*
+            dist/karavel_darwin_amd64/*
+            dist/karavel_darwin_arm64/*
+            dist/karavel_windows_386/*
+            dist/karavel_windows_amd64/*
