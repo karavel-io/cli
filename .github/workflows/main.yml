@@ -88,14 +88,15 @@ jobs:
           args: release --rm-dist --snapshot
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  upload-binary:
+    needs: [binary]
+    strategy:
+      matrix:
+        target: [linux_386, linux_amd64, linux_arm64, windows_386, windows_amd64, darwin_amd64, darwin_arm64]
+    runs-on: ubuntu-latest
+    steps:
       - uses: 'actions/upload-artifact@v2'
         with:
           name: karavel-cli
           path: |
-            dist/karavel_linux_386/*
-            dist/karavel_linux_amd64/*
-            dist/karavel_linux_arm64/*
-            dist/karavel_darwin_amd64/*
-            dist/karavel_darwin_arm64/*
-            dist/karavel_windows_386/*
-            dist/karavel_windows_amd64/*
+            dist/karavel_${{ matrix.target }}/*
