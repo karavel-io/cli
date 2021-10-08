@@ -97,6 +97,7 @@ func NewApplication(name string, namespace string, argoNs string, repoUrl string
 					"Validate=false",
 					"CreateNamespace=true",
 					"ApplyOutOfSyncOnly=true",
+					"SkipDryRunOnMissingResource=true",
 				},
 				Retry: Retry{
 					Limit: 5,
