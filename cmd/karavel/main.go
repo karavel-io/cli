@@ -30,7 +30,7 @@ func main() {
 
 	app := cobra.Command{
 		Use:     "karavel",
-		Short:   "Smooth sailing in the Cloud sea",
+		Short:   "Sailing smoothly on the Cloud sea",
 		Long:    ``,
 		Version: version.Short(),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
