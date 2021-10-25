@@ -30,7 +30,7 @@ import (
 
 const (
 	latestReleaseURL = "https://github.com/karavel-io/platform/releases/latest/download"
-	releaseUrl       = "https://github.com/karavel-io/platform/releases/v%s/download"
+	releaseUrl       = "https://github.com/karavel-io/platform/releases/%s/download"
 )
 
 type InitParams struct {
@@ -47,7 +47,7 @@ func Initialize(log logger.Logger, params InitParams) error {
 	filename := params.Filename
 	force := params.Force
 
-	log.Infof("Initializing new Karavel v%s project at %s", ver, workdir)
+	log.Infof("Initializing new Karavel %s project at %s", ver, workdir)
 	log.Info()
 
 	var baseUrlStr string
@@ -61,8 +61,6 @@ func Initialize(log logger.Logger, params InitParams) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to parse download URL")
 	}
-
-	log.Warnf("URL: %s", baseUrlStr)
 
 	cfgUrl := params.FileUrlOverride
 	if cfgUrl == "" {
