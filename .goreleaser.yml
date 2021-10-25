@@ -13,10 +13,6 @@
 # limitations under the License.
 
 project_name: karavel
-before:
-  hooks:
-    - go mod tidy
-    - addlicense -c "The Karavel Project" -l apache .
 builds:
   - main: ./cmd/karavel
     binary: karavel
