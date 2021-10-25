@@ -16,7 +16,7 @@ name: Release stable build
 on:
   push:
     tags:
-      - '*'
+      - '*.*.*'
 jobs:
   container-image:
     runs-on: ubuntu-latest
