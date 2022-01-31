@@ -16,14 +16,15 @@ package utils
 
 import (
 	"bytes"
-	"github.com/pkg/errors"
-	"gopkg.in/yaml.v3"
 	"io/ioutil"
-	"modernc.org/sortutil"
 	"os"
 	"path/filepath"
-	"sigs.k8s.io/kustomize/api/types"
 	"sort"
+
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
+	"modernc.org/sortutil"
+	"sigs.k8s.io/kustomize/api/types"
 )
 
 func RenderKustomizeFile(outdir string, resources []string, ignoreFn func(s string) bool) error {
@@ -64,6 +65,13 @@ func RenderKustomizeFile(outdir string, resources []string, ignoreFn func(s stri
 	kfile.Resources = resources
 
 	kfile.FixKustomizationPreMarshalling()
+
+	// Cleanup paths and make sure they're using unix-style separators
+	// This is mostly useful for Windows, other OSs shouldn't worry about this
+	for index, resource := range kfile.Resources {
+		resource = filepath.ToSlash(filepath.Clean(resource))
+		kfile.Resources[index] = resource
+	}
 
 	var buf bytes.Buffer
 	enc := yaml.NewEncoder(&buf)
