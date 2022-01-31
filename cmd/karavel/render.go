@@ -16,11 +16,12 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+
 	"github.com/karavel-io/cli/pkg/action"
 	"github.com/karavel-io/cli/pkg/logger"
 	"github.com/spf13/cobra"
-	"os"
-	"path/filepath"
 )
 
 const DefaultFileName = "karavel.hcl"

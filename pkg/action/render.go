@@ -16,6 +16,14 @@ package action
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path"
+	"path/filepath"
+	"sort"
+	"strings"
+	"sync"
+
 	"github.com/karavel-io/cli/internal/gitutils"
 	"github.com/karavel-io/cli/internal/helmw"
 	"github.com/karavel-io/cli/internal/plan"
@@ -24,13 +32,6 @@ import (
 	"github.com/karavel-io/cli/pkg/config"
 	"github.com/karavel-io/cli/pkg/logger"
 	"github.com/pkg/errors"
-	"io/ioutil"
-	"os"
-	"path"
-	"path/filepath"
-	"sort"
-	"strings"
-	"sync"
 )
 
 type RenderParams struct {
