@@ -16,11 +16,12 @@ package plan
 
 import (
 	"fmt"
+	"sync"
+
 	"github.com/karavel-io/cli/internal/helmw"
 	"github.com/karavel-io/cli/pkg/config"
 	"github.com/karavel-io/cli/pkg/logger"
 	"github.com/pkg/errors"
-	"sync"
 )
 
 type Plan struct {
@@ -33,6 +34,8 @@ func NewFromConfig(log logger.Logger, cfg *config.Config) (*Plan, error) {
 
 	var wg sync.WaitGroup
 	ch := make(chan error)
+	components := make(chan Component, 10)
+	done := make(chan bool)
 	for _, c := range cfg.Components {
 		wg.Add(1)
 		go func(cc config.Component) {
@@ -61,26 +64,30 @@ func NewFromConfig(log logger.Logger, cfg *config.Config) (*Plan, error) {
 			comp.namespace = cc.Namespace
 			comp.jsonParams = cc.JsonParams
 
+			components <- comp
+
 			log.Debugf("Loaded component %s", comp.DebugLabel())
-			if err := p.AddComponent(comp); err != nil {
-				ch <- errors.Wrap(err, "failed to build plan from config")
-				return
-			}
 		}(c)
 	}
 
 	go func() {
 		wg.Wait()
-		close(ch)
+		done <- true
 	}()
 
-	for err := range ch {
-		if err != nil {
+	for {
+		select {
+		case err := <-ch:
 			return nil, err
+		case comp := <-components:
+			err := p.AddComponent(comp)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to build plan from config")
+			}
+		case <-done:
+			return &p, nil
 		}
 	}
-
-	return &p, nil
 }
 
 func New() Plan {

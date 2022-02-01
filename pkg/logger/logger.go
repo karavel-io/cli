@@ -16,9 +16,11 @@ package logger
 
 import (
 	"fmt"
-	"github.com/fatih/color"
 	"io"
 	"os"
+	"sync"
+
+	"github.com/fatih/color"
 )
 
 const (
@@ -51,6 +53,7 @@ type logger struct {
 	palette palette
 	lvl     Level
 	colors  bool
+	mu      *sync.Mutex
 }
 
 func New(lvl Level) Logger {
@@ -58,6 +61,7 @@ func New(lvl Level) Logger {
 		w:       color.Error,
 		palette: palettes[PaletteDefault],
 		lvl:     lvl,
+		mu:      &sync.Mutex{},
 	}
 }
 
@@ -170,6 +174,9 @@ func (l *logger) outputf(lvl Level, s string, a ...interface{}) {
 	if !IsLevelActive(l.lvl, lvl) {
 		return
 	}
+
+	l.mu.Lock()
+	defer l.mu.Unlock()
 
 	prefix := false
 	if s != "" {

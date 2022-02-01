@@ -98,6 +98,8 @@ func Render(log logger.Logger, params RenderParams) error {
 
 	var wg sync.WaitGroup
 	ch := make(chan utils.Pair)
+	appNames := make(chan string)
+	done := make(chan bool)
 
 	var apps []string
 	var renderDirs []string
@@ -157,11 +159,11 @@ func Render(log logger.Logger, params RenderParams) error {
 			if argoEnabled {
 				log.Debugf("Rendering application manifest for component %s", comp.DebugLabel())
 				appFile := comp.Name() + ".yml"
-				apps = append(apps, appFile)
-				appfile := filepath.Join(appsDir, appFile)
+				appNames <- appFile
+				appFullPath := filepath.Join(appsDir, appFile)
 				// if the application file already exists, we skip it. It has already been created
 				// and we don't want to overwrite any changes the user may have made
-				_, err = os.Stat(appfile)
+				_, err = os.Stat(appFullPath)
 				if !os.IsNotExist(err) {
 					ch <- utils.NewPair(msg, err)
 					return
@@ -169,7 +171,7 @@ func Render(log logger.Logger, params RenderParams) error {
 
 				argoNs := argo.Namespace()
 				vendorPath := path.Join(repoPath, "vendor", comp.Name())
-				if err := comp.RenderApplication(argoNs, repoUrl, vendorPath, appfile); err != nil {
+				if err := comp.RenderApplication(argoNs, repoUrl, vendorPath, appFullPath); err != nil {
 					ch <- utils.NewPair(msg, err)
 				}
 			}
@@ -190,13 +192,21 @@ func Render(log logger.Logger, params RenderParams) error {
 
 	go func() {
 		wg.Wait()
-		close(ch)
+		done <- true
 	}()
 
-	for pair := range ch {
-		err := pair.ErrorB()
-		if err != nil {
-			return errors.Wrap(err, pair.StringA())
+	open := true
+	for open {
+		select {
+		case name := <-appNames:
+			apps = append(apps, name)
+		case pair := <-ch:
+			err := pair.ErrorB()
+			if err != nil {
+				return errors.Wrap(err, pair.StringA())
+			}
+		case <-done:
+			open = false
 		}
 	}
 
