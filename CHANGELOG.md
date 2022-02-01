@@ -11,11 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `karavel render` now renders UNIX-style paths regardless of host operating system
+- `karavel render` now renders UNIX-style paths regardless of host operating system ([#4](https://github.com/karavel-io/cli/pull/4))
 
 ### Fixed
 
-- Multiple data races and crashes have been fixed when rendering charts.
+- Multiple data races and crashes have been fixed when rendering charts ([#5](https://github.com/karavel-io/cli/pull/5#pullrequestreview-868973482))
 
 ## [0.1.0] 2021-10-25
 
