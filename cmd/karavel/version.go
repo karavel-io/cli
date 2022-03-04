@@ -16,7 +16,9 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/karavel-io/cli/internal/version"
+
 	"github.com/spf13/cobra"
 )
 

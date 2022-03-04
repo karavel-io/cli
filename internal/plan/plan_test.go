@@ -15,9 +15,10 @@
 package plan
 
 import (
+	"testing"
+
 	"github.com/karavel-io/cli/pkg/logger"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 var log = logger.New(logger.LvlError)

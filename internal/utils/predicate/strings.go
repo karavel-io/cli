@@ -15,8 +15,9 @@
 package predicate
 
 import (
-	"github.com/karavel-io/cli/internal/utils"
 	"strings"
+
+	"github.com/karavel-io/cli/internal/utils"
 )
 
 type StringPredicate func(s string) bool

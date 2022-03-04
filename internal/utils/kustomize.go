@@ -16,12 +16,12 @@ package utils
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
 
-	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 	"modernc.org/sortutil"
 	"sigs.k8s.io/kustomize/api/types"
@@ -36,7 +36,7 @@ func RenderKustomizeFile(outdir string, resources []string, ignoreFn func(s stri
 	}
 
 	if info != nil && info.IsDir() {
-		return errors.Errorf("could not render %s: is a directory", filename)
+		return fmt.Errorf("could not render %s: is a directory", filename)
 	}
 
 	var kfile types.Kustomization

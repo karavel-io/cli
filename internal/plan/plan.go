@@ -21,7 +21,6 @@ import (
 	"github.com/karavel-io/cli/internal/helmw"
 	"github.com/karavel-io/cli/pkg/config"
 	"github.com/karavel-io/cli/pkg/logger"
-	"github.com/pkg/errors"
 )
 
 type Plan struct {
@@ -50,12 +49,12 @@ func NewFromConfig(log logger.Logger, cfg *config.Config) (*Plan, error) {
 			log.Debugf("Loading component '%s'", chartName)
 			meta, err := helmw.GetChartManifest(chartName, cc.Version, cc.Unstable)
 			if err != nil {
-				ch <- errors.Wrapf(err, "failed to load component '%s'", chartName)
+				ch <- fmt.Errorf("failed to load component '%s': %w", chartName, err)
 				return
 			}
 			comp, err := NewComponentFromChartMetadata(meta, cc.Unstable)
 			if err != nil {
-				ch <- errors.Wrap(err, "failed to instantiate component configuration")
+				ch <- fmt.Errorf("failed to instantiate component configuration: %w", err)
 				return
 			}
 			if cc.ComponentName != "" {
@@ -83,7 +82,7 @@ func NewFromConfig(log logger.Logger, cfg *config.Config) (*Plan, error) {
 		case comp := <-components:
 			err := p.AddComponent(comp)
 			if err != nil {
-				return nil, errors.Wrap(err, "failed to build plan from config")
+				return nil, fmt.Errorf("failed to build plan from config: %w", err)
 			}
 		case <-done:
 			return &p, nil
@@ -114,7 +113,7 @@ func (p *Plan) GetComponent(name string) *Component {
 
 func (p *Plan) AddComponent(c Component) error {
 	if p.components[c.name] != nil {
-		return errors.Errorf("duplicate component '%s' found", c.name)
+		return fmt.Errorf("duplicate component '%s' found", c.name)
 	}
 
 	if other := p.seenComponents[c.ComponentName()]; c.singleton && other != "" {
@@ -122,7 +121,7 @@ func (p *Plan) AddComponent(c Component) error {
 		if name := c.NameOverride(); name != "" {
 			withAlias = fmt.Sprintf(" with alias '%s'", name)
 		}
-		return errors.Errorf("component '%s'%s is a singleton, but another instance called '%s' is already declared", c.ComponentName(), withAlias, other)
+		return fmt.Errorf("component '%s'%s is a singleton, but another instance called '%s' is already declared", c.ComponentName(), withAlias, other)
 	}
 
 	p.components[c.name] = &c

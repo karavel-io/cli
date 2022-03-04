@@ -15,12 +15,14 @@
 package config
 
 import (
-	"github.com/karavel-io/cli/internal/helmw"
-	"github.com/stretchr/testify/suite"
 	"io"
 	"io/ioutil"
 	"os"
 	"testing"
+
+	"github.com/karavel-io/cli/internal/helmw"
+
+	"github.com/stretchr/testify/suite"
 )
 
 type ConfigTestSuite struct {
