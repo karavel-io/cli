@@ -16,13 +16,14 @@ package utils
 
 import (
 	"context"
-	"github.com/karavel-io/cli/pkg/logger"
-	"github.com/pkg/errors"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path"
 	"time"
+
+	"github.com/karavel-io/cli/pkg/logger"
 )
 
 // Thank you Cosmin!
@@ -50,7 +51,7 @@ func DownloadWithProgress(ctx context.Context, log logger.Logger, url string, fi
 
 	defer headResp.Body.Close()
 	if headResp.StatusCode >= 400 {
-		return errors.Errorf("failed to fetch %s: %s", url, headResp.Status)
+		return fmt.Errorf("failed to fetch %s: %s", url, headResp.Status)
 	}
 
 	resp, err := http.Get(url)

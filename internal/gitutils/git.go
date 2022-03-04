@@ -15,14 +15,17 @@
 package gitutils
 
 import (
+	"errors"
+	"fmt"
+	"os"
+	"path/filepath"
+
 	"github.com/go-git/go-billy/v5/osfs"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/cache"
 	"github.com/go-git/go-git/v5/storage/filesystem"
+
 	"github.com/karavel-io/cli/pkg/logger"
-	"github.com/pkg/errors"
-	"os"
-	"path/filepath"
 )
 
 func GetOriginRemote(log logger.Logger, cwd string, urlOverride string) (string, string, error) {
@@ -57,7 +60,7 @@ func GetOriginRemote(log logger.Logger, cwd string, urlOverride string) (string,
 	}
 
 	if len(rems) == 0 {
-		return "", "", errors.Errorf("no remote found for git repo at %s", path)
+		return "", "", fmt.Errorf("no remote found for git repo at %s", path)
 	}
 
 	if len(rems) == 1 {
@@ -67,7 +70,7 @@ func GetOriginRemote(log logger.Logger, cwd string, urlOverride string) (string,
 			return path, urls[0], nil
 		}
 
-		return "", "", errors.Errorf("git remote %s has no URL defined", rem.Name)
+		return "", "", fmt.Errorf("git remote %s has no URL defined", rem.Name)
 	}
 
 	for _, rem := range rems {
@@ -78,10 +81,10 @@ func GetOriginRemote(log logger.Logger, cwd string, urlOverride string) (string,
 				return path, urls[0], nil
 			}
 
-			return "", "", errors.Errorf("git remote %s has no URL defined", c.Name)
+			return "", "", fmt.Errorf("git remote %s has no URL defined", c.Name)
 		}
 	}
-	return "", "", errors.Errorf("could not find a suitable remote for git repo %s", path)
+	return "", "", fmt.Errorf("could not find a suitable remote for git repo %s", path)
 }
 
 func findGitRepoPath(log logger.Logger, path string) (string, error) {
@@ -108,7 +111,7 @@ func findGitRepoPath(log logger.Logger, path string) (string, error) {
 			d = " not"
 		}
 
-		return "", errors.Errorf("failed to find git repo, found %s which is%s a directory", i.Name(), d)
+		return "", fmt.Errorf("failed to find git repo, found %s which is%s a directory", i.Name(), d)
 	}
 
 	log.Debugf("found git repo at %s", gitPath)

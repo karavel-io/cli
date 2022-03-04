@@ -31,7 +31,7 @@ import (
 	"github.com/karavel-io/cli/internal/utils"
 	"github.com/karavel-io/cli/internal/utils/predicate"
 	"github.com/karavel-io/cli/pkg/logger"
-	"github.com/pkg/errors"
+
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 	"gopkg.in/yaml.v3"
@@ -88,7 +88,7 @@ func NewComponentFromChartMetadata(meta *chart.Metadata, unstable bool) (Compone
 		cr := csv.NewReader(strings.NewReader(reqsCsv))
 		reqs, err := cr.Read()
 		if err != nil {
-			return Component{}, errors.Wrap(err, "failed to read integration dependencies")
+			return Component{}, fmt.Errorf("failed to read integration dependencies: %w", err)
 		}
 		integs[integ] = reqs
 	}
@@ -165,20 +165,20 @@ type routineRes struct {
 }
 
 func (c *Component) Render(log logger.Logger, outdir string) error {
-	deferr := fmt.Sprintf("failed to render component '%s' v%s", c.name, c.version)
+	const errorFormat = "failed to render component '%s' v%s: %w"
 
 	if err := os.RemoveAll(outdir); err != nil {
-		return errors.Wrap(err, deferr)
+		return fmt.Errorf(errorFormat, c.name, c.version, err)
 	}
 
 	if err := os.MkdirAll(outdir, 0755); err != nil {
-		return errors.Wrap(err, deferr)
+		return fmt.Errorf(errorFormat, c.name, c.version, err)
 	}
 
 	if no := c.NameOverride(); no != "" {
 		j, err := sjson.Set(c.jsonParams, "nameOverride", no)
 		if err != nil {
-			return errors.Wrap(err, deferr)
+			return fmt.Errorf(errorFormat, c.name, c.version, err)
 		}
 
 		c.jsonParams = j
@@ -186,7 +186,7 @@ func (c *Component) Render(log logger.Logger, outdir string) error {
 
 	docs, err := helmw.TemplateChart(c.component, c.namespace, c.version, c.jsonParams, c.unstable)
 	if err != nil {
-		return errors.Wrap(err, deferr)
+		return fmt.Errorf(errorFormat, c.name, c.version, err)
 	}
 
 	log.Debugf("component %s: writing %d resources", c.DebugLabel(), len(docs))
@@ -242,7 +242,7 @@ func (c *Component) Render(log logger.Logger, outdir string) error {
 	var files []string
 	for res := range resch {
 		if res.err != nil {
-			return errors.Wrap(res.err, deferr)
+			return fmt.Errorf(errorFormat, c.name, c.version, res.err)
 		}
 		files = append(files, res.filename)
 	}

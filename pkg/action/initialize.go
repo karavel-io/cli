@@ -17,15 +17,15 @@ package action
 import (
 	"context"
 	"fmt"
-	"github.com/karavel-io/cli/internal/utils"
-	"github.com/karavel-io/cli/pkg/logger"
-	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/url"
 	"os"
 	"path"
 	"path/filepath"
 	"time"
+
+	"github.com/karavel-io/cli/internal/utils"
+	"github.com/karavel-io/cli/pkg/logger"
 )
 
 const (
@@ -59,7 +59,7 @@ func Initialize(log logger.Logger, params InitParams) error {
 
 	baseUrl, err := url.Parse(baseUrlStr)
 	if err != nil {
-		return errors.Wrap(err, "failed to parse download URL")
+		return fmt.Errorf("failed to parse download URL: %w", err)
 	}
 
 	cfgUrl := params.FileUrlOverride
@@ -82,7 +82,7 @@ func Initialize(log logger.Logger, params InitParams) error {
 	}
 
 	if info != nil && !force {
-		return errors.Errorf("Karavel config file %s already exists", filename)
+		return fmt.Errorf("Karavel config file %s already exists: %w", filename, err)
 	}
 
 	if info != nil && force {

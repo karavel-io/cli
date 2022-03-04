@@ -8,7 +8,6 @@ require (
 	github.com/go-git/go-git/v5 v5.2.0
 	github.com/hashicorp/hcl/v2 v2.8.2
 	github.com/mittwald/go-helm-client v0.8.4
-	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.2.1
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/gjson v1.6.8
@@ -103,6 +102,7 @@ require (
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v1.0.2 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_golang v1.11.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect

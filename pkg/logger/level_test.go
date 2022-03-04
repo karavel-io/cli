@@ -15,8 +15,9 @@
 package logger
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestIsLevelActive(t *testing.T) {

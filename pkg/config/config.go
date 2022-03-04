@@ -16,14 +16,16 @@ package config
 
 import (
 	"errors"
+	"io"
+	"strings"
+
+	"github.com/karavel-io/cli/internal/helmw"
+
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclparse"
-	"github.com/karavel-io/cli/internal/helmw"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/json"
-	"io"
-	"strings"
 )
 
 var (

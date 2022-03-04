@@ -32,7 +32,6 @@ import (
 	"github.com/karavel-io/cli/internal/utils/predicate"
 	"github.com/karavel-io/cli/pkg/config"
 	"github.com/karavel-io/cli/pkg/logger"
-	"github.com/pkg/errors"
 )
 
 type RenderParams struct {
@@ -54,24 +53,24 @@ func Render(log logger.Logger, params RenderParams) error {
 	log.Debug("Reading config file")
 	cfg, err := config.ReadFrom(log.Writer(), cpath)
 	if err != nil {
-		return errors.Wrap(err, "failed to read config file")
+		return fmt.Errorf("failed to read config file: %w", err)
 	}
 
 	log.Debugf("Karavel Container Platform version %s", cfg.Version)
 	log.Debugf("Updating Karavel components stable repository %s", cfg.HelmStableRepoUrl)
 	if err := helmw.SetupHelm(cfg.Version, cfg.HelmStableRepoUrl); err != nil {
-		return errors.Wrap(err, "failed to setup Karavel stable components repository")
+		return fmt.Errorf("failed to setup Karavel stable components repository: %w", err)
 	}
 
 	log.Debugf("Updating Karavel components unstable repository %s", cfg.HelmUntableRepoUrl)
 	if err := helmw.SetupHelm("unstable", cfg.HelmUntableRepoUrl); err != nil {
-		return errors.Wrap(err, "failed to setup Karavel unstable components repository")
+		return fmt.Errorf("failed to setup Karavel unstable components repository: %w", err)
 	}
 
 	log.Debug("Creating render plan from config")
 	p, err := plan.NewFromConfig(log, &cfg)
 	if err != nil {
-		return errors.Wrap(err, "failed to instantiate render plan from config")
+		return fmt.Errorf("failed to instantiate render plan from config: %w", err)
 	}
 
 	log.Debug("Validating render plan")
@@ -93,7 +92,7 @@ func Render(log logger.Logger, params RenderParams) error {
 	for _, dir := range assertDirs {
 		log.Debugf("Asserting directory %s", dir)
 		if err := os.MkdirAll(dir, 0755); err != nil {
-			return errors.Wrapf(err, "failed to create directory %s", dir)
+			return fmt.Errorf("failed to create directory %s: %w", dir, err)
 		}
 	}
 
@@ -204,7 +203,7 @@ func Render(log logger.Logger, params RenderParams) error {
 		case pair := <-ch:
 			err := pair.ErrorB()
 			if err != nil {
-				return errors.Wrap(err, pair.StringA())
+				return fmt.Errorf("%s: %w", pair.StringA(), err)
 			}
 		case <-done:
 			open = false
@@ -216,17 +215,17 @@ func Render(log logger.Logger, params RenderParams) error {
 		apps = append(apps, "projects.yml", "bootstrap.yml")
 		sort.Strings(apps)
 		if err := utils.RenderKustomizeFile(appsDir, apps, predicate.IsStringInSlice(apps)); err != nil {
-			return errors.Wrap(err, "failed to render applications kustomization.yml")
+			return fmt.Errorf("failed to render applications kustomization.yml: %w", err)
 		}
 
 		infraProj := "infrastructure.yml"
 		if err := ioutil.WriteFile(filepath.Join(projsDir, infraProj), []byte(fmt.Sprintf(argoProject, argoNs)), 0655); err != nil {
-			return errors.Wrap(err, "failed to render infrastructure project file")
+			return fmt.Errorf("failed to render infrastructure project file: %w", err)
 		}
 
 		projs := []string{infraProj}
 		if err := utils.RenderKustomizeFile(projsDir, projs, predicate.IsStringInSlice(projs)); err != nil {
-			return errors.Wrap(err, "failed to render projects kustomization.yml")
+			return fmt.Errorf("failed to render projects kustomization.yml: %w", err)
 		}
 
 		projsAppPath := filepath.Join(appsDir, "projects.yml")
@@ -234,7 +233,7 @@ func Render(log logger.Logger, params RenderParams) error {
 		if os.IsNotExist(err) {
 			projsApp := argocd.NewApplication("projects", "argocd", "argocd", repoUrl, path.Join(repoPath, "projects"))
 			if err := projsApp.Render(projsAppPath); err != nil {
-				return errors.Wrap(err, "failed to render projects application")
+				return fmt.Errorf("failed to render projects application: %w", err)
 			}
 		}
 
@@ -243,14 +242,14 @@ func Render(log logger.Logger, params RenderParams) error {
 		if os.IsNotExist(err) {
 			bootstrap := argocd.NewApplication("bootstrap", "argocd", "argocd", repoUrl, path.Join(repoPath, "applications"))
 			if err := bootstrap.Render(bootstrapAppPath); err != nil {
-				return errors.Wrap(err, "failed to render bootstrap application")
+				return fmt.Errorf("failed to render bootstrap application: %w", err)
 			}
 		}
 
 	}
 
 	if err := utils.RenderKustomizeFile(workdir, renderDirs, predicate.StringOr(predicate.IsStringInSlice(renderDirs), predicate.StringHasPrefix("vendor"))); err != nil {
-		return errors.Wrap(err, "failed to render kustomization.yml")
+		return fmt.Errorf("failed to render kustomization.yml: %w", err)
 	}
 
 	return nil
