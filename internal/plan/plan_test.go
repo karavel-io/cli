@@ -15,9 +15,12 @@
 package plan
 
 import (
+	"github.com/karavel-io/cli/pkg/logger"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
+
+var log = logger.New(logger.LvlError)
 
 func TestPlan_GetComponent(t *testing.T) {
 	c1 := Component{
@@ -26,7 +29,7 @@ func TestPlan_GetComponent(t *testing.T) {
 		dependencies: []string{"c2", "c3"},
 	}
 
-	p := New()
+	p := New(log)
 
 	assert.NoError(t, p.AddComponent(c1))
 
@@ -41,7 +44,7 @@ func TestPlan_HasComponent(t *testing.T) {
 		dependencies: []string{"c2", "c3"},
 	}
 
-	p := New()
+	p := New(log)
 
 	assert.NoError(t, p.AddComponent(c1))
 
@@ -67,7 +70,7 @@ func TestPlan_Validate(t *testing.T) {
 		version: "0.1.0",
 	}
 
-	p := New()
+	p := New(log)
 
 	assert.NoError(t, p.AddComponent(c1))
 	assert.NoError(t, p.AddComponent(c2))
@@ -83,7 +86,7 @@ func TestPlan_ValidateMissingDep(t *testing.T) {
 		dependencies: []string{"c2"},
 	}
 
-	p := New()
+	p := New(log)
 
 	assert.NoError(t, p.AddComponent(c1))
 
@@ -110,7 +113,7 @@ func TestPlan_IntegrationsProcessing(t *testing.T) {
 		},
 	}
 
-	p := New()
+	p := New(log)
 
 	assert.NoError(t, p.AddComponent(c1))
 	assert.NoError(t, p.AddComponent(c2))

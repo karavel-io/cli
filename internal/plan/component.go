@@ -272,14 +272,22 @@ func (c *Component) RenderApplication(argoNs string, repoUrl string, path string
 	return nil
 }
 
-func (c *Component) patchIntegrations() error {
+func (c *Component) patchIntegrations(log logger.Logger) error {
 	jp := c.jsonParams
-	for p, b := range c.integrations {
-		j, err := sjson.Set(jp, p, b)
-		if err != nil {
-			return err
+	log.Debugf("Processing integrations for component '%s'", c.Name())
+	for param, status := range c.integrations {
+		log.Debugf("Processing integration %s: %t for component '%s'", param, status, c.Name())
+		curr := gjson.Get(jp, param)
+		if curr.Exists() {
+			log.Debugf("Override for integration %s is present for component '%s'. Skipping integration", param, c.Name())
+		} else {
+			log.Debugf("Override for integration %s not present for component '%s'. Setting to %t", param, c.Name(), status)
+			j, err := sjson.Set(jp, param, status)
+			if err != nil {
+				return err
+			}
+			jp = j
 		}
-		jp = j
 	}
 	c.jsonParams = jp
 	return nil

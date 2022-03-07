@@ -27,10 +27,11 @@ import (
 type Plan struct {
 	components     map[string]*Component
 	seenComponents map[string]string
+	log            logger.Logger
 }
 
 func NewFromConfig(log logger.Logger, cfg *config.Config) (*Plan, error) {
-	p := New()
+	p := New(log)
 
 	var wg sync.WaitGroup
 	ch := make(chan error)
@@ -90,10 +91,11 @@ func NewFromConfig(log logger.Logger, cfg *config.Config) (*Plan, error) {
 	}
 }
 
-func New() Plan {
+func New(log logger.Logger) Plan {
 	return Plan{
 		components:     map[string]*Component{},
 		seenComponents: map[string]string{},
+		log:            log,
 	}
 }
 
@@ -165,7 +167,7 @@ func (p *Plan) processIntegrations() error {
 			}
 			c.integrations[integ] = active
 		}
-		if err := c.patchIntegrations(); err != nil {
+		if err := c.patchIntegrations(p.log); err != nil {
 			return err
 		}
 	}
