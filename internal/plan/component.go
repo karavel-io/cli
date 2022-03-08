@@ -251,25 +251,8 @@ func (c *Component) Render(log logger.Logger, outdir string) error {
 }
 
 func (c *Component) RenderApplication(argoNs string, repoUrl string, path string, outfile string) error {
-	deferr := fmt.Sprintf("failed to render application manifest for component '%s' v%s", c.name, c.version)
-
 	app := argo.NewApplication(c.name, c.namespace, argoNs, repoUrl, path)
-
-	var buf bytes.Buffer
-	enc := yaml.NewEncoder(&buf)
-	enc.SetIndent(2)
-	if err := enc.Encode(&app); err != nil {
-		return errors.Wrap(err, deferr)
-	}
-
-	if err := enc.Close(); err != nil {
-		return errors.Wrap(err, deferr)
-	}
-
-	if err := ioutil.WriteFile(outfile, buf.Bytes(), 0655); err != nil {
-		return errors.Wrap(err, deferr)
-	}
-	return nil
+	return app.Render(outfile)
 }
 
 func (c *Component) patchIntegrations(log logger.Logger) error {

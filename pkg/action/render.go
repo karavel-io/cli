@@ -24,6 +24,7 @@ import (
 	"strings"
 	"sync"
 
+	argocd "github.com/karavel-io/cli/internal/argo"
 	"github.com/karavel-io/cli/internal/gitutils"
 	"github.com/karavel-io/cli/internal/helmw"
 	"github.com/karavel-io/cli/internal/plan"
@@ -226,6 +227,25 @@ func Render(log logger.Logger, params RenderParams) error {
 		if err := utils.RenderKustomizeFile(projsDir, projs, predicate.IsStringInSlice(projs)); err != nil {
 			return errors.Wrap(err, "failed to render projects kustomization.yml")
 		}
+
+		projsAppPath := filepath.Join(appsDir, "projects.yml")
+		_, err = os.Stat(projsAppPath)
+		if os.IsNotExist(err) {
+			projsApp := argocd.NewApplication("projects", "argocd", "argocd", repoUrl, path.Join(repoPath, "projects"))
+			if err := projsApp.Render(projsAppPath); err != nil {
+				return errors.Wrap(err, "failed to render projects application")
+			}
+		}
+
+		bootstrapAppPath := filepath.Join(appsDir, "bootstrap.yml")
+		_, err = os.Stat(bootstrapAppPath)
+		if os.IsNotExist(err) {
+			bootstrap := argocd.NewApplication("bootstrap", "argocd", "argocd", repoUrl, path.Join(repoPath, "applications"))
+			if err := bootstrap.Render(bootstrapAppPath); err != nil {
+				return errors.Wrap(err, "failed to render bootstrap application")
+			}
+		}
+
 	}
 
 	if err := utils.RenderKustomizeFile(workdir, renderDirs, predicate.StringOr(predicate.IsStringInSlice(renderDirs), predicate.StringHasPrefix("vendor"))); err != nil {

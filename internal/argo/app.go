@@ -14,7 +14,13 @@
 
 package argo
 
-import "time"
+import (
+	"bytes"
+	"fmt"
+	"gopkg.in/yaml.v3"
+	"io/ioutil"
+	"time"
+)
 
 // Application is a lightweight struct matching argoproj.io/v1alpha1/Application
 type Application struct {
@@ -110,4 +116,23 @@ func NewApplication(name string, namespace string, argoNs string, repoUrl string
 			},
 		},
 	}
+}
+
+func (app *Application) Render(outfile string) error {
+	deferr := fmt.Sprintf("failed to render application manifest '%s'", app.Name)
+	var buf bytes.Buffer
+	enc := yaml.NewEncoder(&buf)
+	enc.SetIndent(2)
+	if err := enc.Encode(&app); err != nil {
+		return fmt.Errorf("%s: %w", deferr, err)
+	}
+
+	if err := enc.Close(); err != nil {
+		return fmt.Errorf("%s: %w", deferr, err)
+	}
+
+	if err := ioutil.WriteFile(outfile, buf.Bytes(), 0655); err != nil {
+		return fmt.Errorf("%s: %w", deferr, err)
+	}
+	return nil
 }
