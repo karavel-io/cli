@@ -48,7 +48,7 @@ features before they are released.
 
 ## Requirements
 
-- Go 1.16+
+- Go 1.17+
 - make
 
 For [Nix] or [NixOS] users, the provided [shell.nix](shell.nix) already configures the required tooling.
