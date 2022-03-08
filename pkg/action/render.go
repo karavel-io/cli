@@ -213,6 +213,7 @@ func Render(log logger.Logger, params RenderParams) error {
 
 	if argoEnabled {
 		argoNs := argo.Namespace()
+		apps = append(apps, "projects.yml", "bootstrap.yml")
 		sort.Strings(apps)
 		if err := utils.RenderKustomizeFile(appsDir, apps, predicate.IsStringInSlice(apps)); err != nil {
 			return errors.Wrap(err, "failed to render applications kustomization.yml")
