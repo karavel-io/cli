@@ -55,12 +55,12 @@ release:
   draft: true
   prerelease: auto
   header: |
-    ## Karavel CLI ({{ .Tag }})
+    # Karavel CLI ({{ .Tag }})
 
-    ### Changelog
+    ## Changelog
     <copy the relevant CHANGELOG.md entries>
 
-    ### Docker images
+    ## Docker images
     - `docker pull ghcr.io/karavel-io/cli:{{ .Tag }}`
     - `docker pull quay.io/karavel/cli:{{ .Tag }}`
 changelog:
