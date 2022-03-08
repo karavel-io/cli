@@ -58,3 +58,8 @@ fmt: addlicense
 .PHONY: vet
 vet:
 	go vet $(PKGS)
+
+.PHONY: update-deps
+update-deps:
+	go get -u ./...
+	go mod tidy
