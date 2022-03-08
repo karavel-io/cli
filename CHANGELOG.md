@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] 2022-03-08
+
 ### Added
 
  - Allow overriding component integration flags via the HCL file
+ - Generate bootstrap and projects applications so that Argo can automatically deploy everything from the start
 
 ## [0.1.1] 2022-02-01
 
@@ -26,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `karavel init` first implementation
 - `karavel render` first implementation
 
-[unreleased]: https://github.com/mikamai/onesignal-ruby/compare/0.1.1...HEAD
-[0.1.1]: https://github.com/mikamai/onesignal-ruby/releases/tag/0.1.1
+[unreleased]: https://github.com/mikamai/onesignal-ruby/compare/0.2.0...HEAD
+[0.2.0]: https://github.com/mikamai/onesignal-ruby/releases/compare/0.1.1...0.2.0
+[0.1.1]: https://github.com/mikamai/onesignal-ruby/releases/compare/0.1.0...0.1.1
 [0.1.0]: https://github.com/mikamai/onesignal-ruby/releases/tag/0.1.0
