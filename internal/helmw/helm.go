@@ -40,10 +40,14 @@ func SetupHelm(version string, repoUrl string) error {
 		name = UnstableRepoName()
 	}
 
-	return h.AddOrUpdateChartRepo(repo.Entry{
+	if err := h.AddOrUpdateChartRepo(repo.Entry{
 		Name: name,
 		URL:  repoUrl,
-	})
+	}); err != nil {
+		return err
+	}
+
+	return h.UpdateChartRepos()
 }
 
 func GetRepoUrl(version string, repoUrl string) string {
