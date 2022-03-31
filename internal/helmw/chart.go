@@ -17,12 +17,15 @@ package helmw
 import (
 	"bytes"
 	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+
 	helmclient "github.com/mittwald/go-helm-client"
 	"gopkg.in/yaml.v3"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
-	"io"
 )
 
 func GetChartManifest(chartName string, version string, unstable bool) (*chart.Metadata, error) {
@@ -33,7 +36,10 @@ func GetChartManifest(chartName string, version string, unstable bool) (*chart.M
 
 	chartName = fmt.Sprintf("%s/%s", repo, chartName)
 	hc, err := helmclient.New(&helmclient.Options{
-		Debug: true,
+		//TODO replace this with a proper temp implementation
+		RepositoryCache:  filepath.Join(os.TempDir(), "helmcache"),
+		RepositoryConfig: filepath.Join(os.TempDir(), "helmconfig"),
+		Debug:            true,
 	})
 	if err != nil {
 		return nil, err
@@ -64,7 +70,10 @@ func TemplateChart(name string, namespace string, version string, values string,
 		repo = UnstableRepoName()
 	}
 	hc, err := helmclient.New(&helmclient.Options{
-		Debug: true,
+		//TODO replace this with a proper temp implementation
+		RepositoryCache:  filepath.Join(os.TempDir(), "helmcache"),
+		RepositoryConfig: filepath.Join(os.TempDir(), "helmconfig"),
+		Debug:            true,
 	})
 	if err != nil {
 		return nil, err
