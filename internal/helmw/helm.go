@@ -16,6 +16,9 @@ package helmw
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+
 	helmclient "github.com/mittwald/go-helm-client"
 	"helm.sh/helm/v3/pkg/repo"
 )
@@ -28,7 +31,11 @@ func SetupHelm(version string, repoUrl string) error {
 		return fmt.Errorf("version cannot be empty")
 	}
 
-	h, err := helmclient.New(&helmclient.Options{})
+	h, err := helmclient.New(&helmclient.Options{
+		//TODO replace this with a proper temp implementation
+		RepositoryCache:  filepath.Join(os.TempDir(), "helmcache"),
+		RepositoryConfig: filepath.Join(os.TempDir(), "helmconfig"),
+	})
 	if err != nil {
 		return err
 	}
