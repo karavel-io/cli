@@ -1,13 +1,12 @@
 module github.com/karavel-io/cli
 
-go 1.17
+go 1.18
 
 require (
 	github.com/fatih/color v1.7.0
 	github.com/go-git/go-billy/v5 v5.0.0
 	github.com/go-git/go-git/v5 v5.2.0
 	github.com/hashicorp/hcl/v2 v2.8.2
-	github.com/mittwald/go-helm-client v0.8.4
 	github.com/spf13/cobra v1.2.1
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/gjson v1.6.8

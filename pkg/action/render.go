@@ -40,6 +40,22 @@ type RenderParams struct {
 	SkipGit    bool
 }
 
+func addRepo(ctx context.Context, version string, url string) (context.Context, error) {
+	// Create repo entry
+	entry, err := helmw.NewRepo(version, url)
+	if err != nil {
+		return ctx, err
+	}
+
+	// Add repository
+	ctx, err = helmw.WithRepository(ctx, entry)
+	if err != nil {
+		return ctx, err
+	}
+
+	return ctx, nil
+}
+
 func Render(ctx context.Context, params RenderParams) error {
 	cpath := params.ConfigPath
 	skipGit := params.SkipGit
@@ -60,13 +76,15 @@ func Render(ctx context.Context, params RenderParams) error {
 
 	log.Debugf("Karavel Container Platform version %s", cfg.Version)
 	log.Debugf("Updating Karavel components stable repository %s", cfg.HelmStableRepoUrl)
-	if err := helmw.SetupHelm(ctx, cfg.Version, cfg.HelmStableRepoUrl); err != nil {
+	ctx, err = addRepo(ctx, cfg.Version, cfg.HelmStableRepoUrl)
+	if err != nil {
 		return fmt.Errorf("failed to setup Karavel stable components repository: %w", err)
 	}
 
 	log.Debugf("Updating Karavel components unstable repository %s", cfg.HelmUntableRepoUrl)
-	if err := helmw.SetupHelm(ctx, "unstable", cfg.HelmUntableRepoUrl); err != nil {
-		return fmt.Errorf("failed to setup Karavel unstable components repository: %w", err)
+	ctx, err = addRepo(ctx, "unstable", cfg.HelmUntableRepoUrl)
+	if err != nil {
+		return fmt.Errorf("failed to setup Karavel stable components repository: %w", err)
 	}
 
 	log.Debug("Creating render plan from config")

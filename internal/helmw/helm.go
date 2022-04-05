@@ -17,28 +17,22 @@ package helmw
 import (
 	"context"
 	"fmt"
-	"os"
-	"path/filepath"
 
-	helmclient "github.com/mittwald/go-helm-client"
+	"github.com/karavel-io/cli/pkg/logger"
+	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/repo"
 )
 
 const HelmRepoName = "karavel"
 const HelmDefaultRepo = "https://repository.platform.karavel.io"
 
-func SetupHelm(ctx context.Context, version string, repoUrl string) error {
-	if version == "" {
-		return fmt.Errorf("version cannot be empty")
-	}
+var (
+	ErrVersionEmpty = fmt.Errorf("version cannot be empty")
+)
 
-	h, err := helmclient.New(&helmclient.Options{
-		//TODO replace this with a proper temp implementation
-		RepositoryCache:  filepath.Join(os.TempDir(), "helmcache"),
-		RepositoryConfig: filepath.Join(os.TempDir(), "helmconfig"),
-	})
-	if err != nil {
-		return err
+func NewRepo(version string, repoUrl string) (*repo.Entry, error) {
+	if version == "" {
+		return nil, ErrVersionEmpty
 	}
 
 	repoUrl = GetRepoUrl(version, repoUrl)
@@ -48,14 +42,48 @@ func SetupHelm(ctx context.Context, version string, repoUrl string) error {
 		name = UnstableRepoName()
 	}
 
-	if err := h.AddOrUpdateChartRepo(repo.Entry{
+	return &repo.Entry{
 		Name: name,
 		URL:  repoUrl,
-	}); err != nil {
-		return err
+	}, nil
+}
+
+func WithRepository(ctx context.Context, entry *repo.Entry) (context.Context, error) {
+	store := FromContext(ctx)
+	if store.Has(entry.Name) {
+		logger.FromContext(ctx).Debugf("repository name %q already exists", entry.Name)
+		return ctx, nil
 	}
 
-	return h.UpdateChartRepos()
+	// Get settings
+	settings := cliSettings()
+	providers := getter.All(settings)
+
+	// Initialize repo
+	repo, err := repo.NewChartRepository(entry, providers)
+	if err != nil {
+		return ctx, err
+	}
+
+	// Use custom cache path to not affect the system installation
+	repo.CachePath = settings.RepositoryCache
+
+	// Try fetching index
+	_, err = repo.DownloadIndexFile()
+	if err != nil {
+		return ctx, err
+	}
+
+	// Add to store
+	store.Update(entry)
+
+	// Write updated config to file
+	err = store.WriteFile(settings.RepositoryConfig, 0o644)
+	if err != nil {
+		return ctx, err
+	}
+
+	return withStore(ctx, store), nil
 }
 
 func GetRepoUrl(version string, repoUrl string) string {
