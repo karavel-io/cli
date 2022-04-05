@@ -16,13 +16,17 @@ package helmw
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 
+	"helm.sh/helm/v3/pkg/cli"
 	"helm.sh/helm/v3/pkg/repo"
 )
 
 type contextKey string
 
 var repoKey contextKey = "helmw.repo"
+var settingsKey contextKey = "helmw.settings"
 
 func FromContext(ctx context.Context) *repo.File {
 	val, ok := ctx.Value(repoKey).(*repo.File)
@@ -34,4 +38,41 @@ func FromContext(ctx context.Context) *repo.File {
 
 func withStore(ctx context.Context, store *repo.File) context.Context {
 	return context.WithValue(ctx, repoKey, store)
+}
+
+func settingsFromContext(ctx context.Context) *cli.EnvSettings {
+	val, ok := ctx.Value(settingsKey).(*cli.EnvSettings)
+	if !ok || val == nil {
+		settings := cli.New()
+		settings.RepositoryCache = tmpdirfallback("helmcache")
+		settings.RepositoryConfig = tmpfilefallback("helmconfig")
+		settings.Debug = true
+		return settings
+	}
+	return val
+}
+
+func withSettings(ctx context.Context, settings *cli.EnvSettings) context.Context {
+	return context.WithValue(ctx, settingsKey, settings)
+}
+
+func tmpdirfallback(name string) string {
+	// Try making temporary directory
+	tmpdir, err := os.MkdirTemp("", name+"-")
+	if err != nil {
+		// Use dummy fallback
+		return filepath.Join(os.TempDir(), name)
+	}
+	return tmpdir
+}
+
+func tmpfilefallback(name string) string {
+	// Try making temporary directory
+	file, err := os.CreateTemp("", name+"-")
+	if err != nil {
+		// Use dummy fallback
+		return filepath.Join(os.TempDir(), name)
+	}
+	defer file.Close()
+	return file.Name()
 }

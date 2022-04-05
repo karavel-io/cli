@@ -87,6 +87,8 @@ func Render(ctx context.Context, params RenderParams) error {
 		return fmt.Errorf("failed to setup Karavel stable components repository: %w", err)
 	}
 
+	defer helmw.Clean(ctx)
+
 	log.Debug("Creating render plan from config")
 	p, err := plan.NewFromConfig(ctx, log, &cfg)
 	if err != nil {

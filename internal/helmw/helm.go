@@ -56,7 +56,7 @@ func WithRepository(ctx context.Context, entry *repo.Entry) (context.Context, er
 	}
 
 	// Get settings
-	settings := cliSettings()
+	settings := settingsFromContext(ctx)
 	providers := getter.All(settings)
 
 	// Initialize repo
@@ -78,12 +78,12 @@ func WithRepository(ctx context.Context, entry *repo.Entry) (context.Context, er
 	store.Update(entry)
 
 	// Write updated config to file
-	err = store.WriteFile(settings.RepositoryConfig, 0o644)
+	err = store.WriteFile(settings.RepositoryConfig, 0644)
 	if err != nil {
 		return ctx, err
 	}
 
-	return withStore(ctx, store), nil
+	return withSettings(withStore(ctx, store), settings), nil
 }
 
 func GetRepoUrl(version string, repoUrl string) string {

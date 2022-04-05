@@ -48,7 +48,7 @@ func NewFromConfig(ctx context.Context, log logger.Logger, cfg *config.Config) (
 			}
 
 			log.Debugf("Loading component '%s'", chartName)
-			meta, err := helmw.GetChartManifest(chartName, cc.Version, cc.Unstable)
+			meta, err := helmw.GetChartManifest(ctx, chartName, cc.Version, cc.Unstable)
 			if err != nil {
 				ch <- fmt.Errorf("failed to load component '%s': %w", chartName, err)
 				return
