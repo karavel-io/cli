@@ -15,14 +15,15 @@
 package helmw
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
-	helmclient "github.com/mittwald/go-helm-client"
+	"github.com/karavel-io/cli/pkg/logger"
+
 	"gopkg.in/yaml.v3"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
@@ -76,32 +77,69 @@ func TemplateChart(ctx context.Context, name string, options ChartOptions) ([]Ya
 		repo = UnstableRepoName()
 	}
 
-	hc, err := helmclient.New(&helmclient.Options{
-		//TODO replace this with a proper temp implementation
-		RepositoryCache:  filepath.Join(os.TempDir(), "helmcache"),
-		RepositoryConfig: filepath.Join(os.TempDir(), "helmconfig"),
-		Debug:            true,
-	})
+	chartName := fmt.Sprintf("%s/%s", repo, name)
+
+	settings := cliSettings()
+	//providers := getter.All(settings)
+	logger := logger.FromContext(ctx)
+
+	config := new(action.Configuration)
+	err := config.Init(
+		settings.RESTClientGetter(),
+		settings.Namespace(),
+		"", // defaults to secret
+		logger.Debugf,
+	)
 	if err != nil {
-		return nil, err
-	}
-	h := hc.(*helmclient.HelmClient)
-
-	ch := &helmclient.ChartSpec{
-		ChartName:  fmt.Sprintf("%s/%s", repo, name),
-		Namespace:  options.Namespace,
-		Version:    options.Version,
-		SkipCRDs:   false,
-		ValuesYaml: options.Values,
+		return nil, fmt.Errorf("could not initialize config object: %w", err)
 	}
 
-	manifests, err := h.TemplateChart(ch)
+	// Create install action for generating charts
+	install := action.NewInstall(config)
+
+	// Don't actually install
+	install.DryRun = true
+	install.IncludeCRDs = true
+	install.ClientOnly = true
+	install.SkipCRDs = false
+	install.Replace = true
+	install.ReleaseName = "dummy"
+
+	// Copy values from options
+	install.Version = options.Version
+	install.Namespace = options.Namespace
+
+	// Get chart
+	chartPath, err := install.LocateChart(chartName, settings)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not locate chart: %w", err)
 	}
 
-	dec := yaml.NewDecoder(bytes.NewReader(manifests))
+	// Load chart
+	chart, err := loader.Load(chartPath)
+	if err != nil {
+		return nil, fmt.Errorf("could not load chart: %w", err)
+	}
 
+	// Get values
+	var values map[string]any
+	err = yaml.Unmarshal([]byte(options.Values), &values)
+	if err != nil {
+		return nil, fmt.Errorf("could not decode values: %w", err)
+	}
+
+	// Run install and generate manifests
+	release, err := install.Run(chart, values)
+	if err != nil {
+		return nil, fmt.Errorf("helm install failed: %w", err)
+	}
+	if release == nil {
+		logger.Warnf("chart \"%s\" has generated no manifests", name)
+		return []YamlDoc{}, nil
+	}
+
+	// Decode generated manifests
+	dec := yaml.NewDecoder(strings.NewReader(release.Manifest))
 	var docs []YamlDoc
 	for {
 		var doc YamlDoc
