@@ -25,10 +25,11 @@ import (
 )
 
 func main() {
-	log := logger.New(logger.LvlInfo)
 	var debug bool
 	var quiet bool
 	var colors bool
+
+	log := logger.New(logger.LvlInfo)
 
 	app := cobra.Command{
 		Use:     "karavel",
@@ -50,11 +51,11 @@ func main() {
 	app.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, "Suppress all logs except errors")
 	app.PersistentFlags().BoolVar(&colors, "colors", true, "Enable colored logs")
 
-	app.AddCommand(NewInitCommand(log))
-	app.AddCommand(NewRenderCommand(log))
+	app.AddCommand(NewInitCommand())
+	app.AddCommand(NewRenderCommand())
 	app.AddCommand(NewVersionCommand())
 
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Minute)
+	ctx, cancel := context.WithTimeout(logger.WithLogger(context.Background(), log), 15*time.Minute)
 	defer cancel()
 
 	if err := app.ExecuteContext(ctx); err != nil {

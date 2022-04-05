@@ -20,12 +20,11 @@ import (
 	"strings"
 
 	"github.com/karavel-io/cli/pkg/action"
-	"github.com/karavel-io/cli/pkg/logger"
 
 	"github.com/spf13/cobra"
 )
 
-func NewInitCommand(log logger.Logger) *cobra.Command {
+func NewInitCommand() *cobra.Command {
 	var ver string
 	var filename string
 	var force bool
@@ -55,7 +54,7 @@ func NewInitCommand(log logger.Logger) *cobra.Command {
 
 			ver = strings.TrimPrefix(ver, "v")
 
-			return action.Initialize(log, action.InitParams{
+			return action.Initialize(cmd.Context(), action.InitParams{
 				Workdir:         cwd,
 				Filename:        filename,
 				KaravelVersion:  ver,

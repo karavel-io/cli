@@ -16,6 +16,7 @@ package plan
 
 import (
 	"bytes"
+	"context"
 	"encoding/csv"
 	"fmt"
 	"io/ioutil"
@@ -164,7 +165,7 @@ type routineRes struct {
 	err      error
 }
 
-func (c *Component) Render(log logger.Logger, outdir string) error {
+func (c *Component) Render(ctx context.Context, log logger.Logger, outdir string) error {
 	const errorFormat = "failed to render component '%s' v%s: %w"
 
 	if err := os.RemoveAll(outdir); err != nil {
@@ -184,7 +185,12 @@ func (c *Component) Render(log logger.Logger, outdir string) error {
 		c.jsonParams = j
 	}
 
-	docs, err := helmw.TemplateChart(c.component, c.namespace, c.version, c.jsonParams, c.unstable)
+	docs, err := helmw.TemplateChart(ctx, c.component, helmw.ChartOptions{
+		Namespace: c.namespace,
+		Version:   c.version,
+		Values:    c.jsonParams,
+		Unstable:  c.unstable,
+	})
 	if err != nil {
 		return fmt.Errorf(errorFormat, c.name, c.version, err)
 	}

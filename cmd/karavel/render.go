@@ -20,14 +20,13 @@ import (
 	"path/filepath"
 
 	"github.com/karavel-io/cli/pkg/action"
-	"github.com/karavel-io/cli/pkg/logger"
 
 	"github.com/spf13/cobra"
 )
 
 const DefaultFileName = "karavel.hcl"
 
-func NewRenderCommand(log logger.Logger) *cobra.Command {
+func NewRenderCommand() *cobra.Command {
 	var cpath string
 	var skipGit bool
 
@@ -65,7 +64,7 @@ It will, however, consider the 'vendor' directory as a fully-managed folder and 
 				return fmt.Errorf("invalid config file %s, is a directory", cpath)
 			}
 
-			return action.Render(log, action.RenderParams{
+			return action.Render(cmd.Context(), action.RenderParams{
 				ConfigPath: cpath,
 				SkipGit:    skipGit,
 			})
