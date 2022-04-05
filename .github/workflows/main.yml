@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
         with:
-          go-version: '1.17'
+          go-version: "1.18"
       - name: Install addlicense
         run: go get -u github.com/google/addlicense
       - name: Build
@@ -73,13 +73,13 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
   binary:
     if: github.ref == 'refs/heads/main'
-    needs: [ lint-and-test ]
+    needs: [lint-and-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
         with:
-          go-version: '1.17'
+          go-version: "1.18"
       - name: Install addlicense
         run: go get -u github.com/google/addlicense
       - name: Release
@@ -89,37 +89,37 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload linux_386 build
-        uses: 'actions/upload-artifact@v2'
+        uses: "actions/upload-artifact@v2"
         with:
           name: karavel-cli-linux_386
           path: dist/karavel_linux_386/*
       - name: Upload linux_amd64 build
-        uses: 'actions/upload-artifact@v2'
+        uses: "actions/upload-artifact@v2"
         with:
           name: karavel-cli-linux_amd64
           path: dist/karavel_linux_amd64/*
       - name: Upload linux_arm64 build
-        uses: 'actions/upload-artifact@v2'
+        uses: "actions/upload-artifact@v2"
         with:
           name: karavel-cli-linux_arm64
           path: dist/karavel_linux_arm64/*
       - name: Upload windows_386 build
-        uses: 'actions/upload-artifact@v2'
+        uses: "actions/upload-artifact@v2"
         with:
           name: karavel-cli-windows_386
           path: dist/karavel_windows_386/*
       - name: Upload windows_amd64 build
-        uses: 'actions/upload-artifact@v2'
+        uses: "actions/upload-artifact@v2"
         with:
           name: karavel-cli-windows_amd64
           path: dist/karavel_windows_amd64/*
       - name: Upload darwin_amd64 build
-        uses: 'actions/upload-artifact@v2'
+        uses: "actions/upload-artifact@v2"
         with:
           name: karavel-cli-darwin_amd64
           path: dist/karavel_darwin_amd64/*
       - name: Upload darwin_arm64 build
-        uses: 'actions/upload-artifact@v2'
+        uses: "actions/upload-artifact@v2"
         with:
           name: karavel-cli-darwin_arm64
           path: dist/karavel_darwin_arm64/*
