@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/karavel-io/cli/pkg/logger"
@@ -28,17 +27,9 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
-	"helm.sh/helm/v3/pkg/cli"
 )
 
-func cliSettings() *cli.EnvSettings {
-	settings := cli.New()
-	settings.RepositoryCache = filepath.Join(os.TempDir(), "helmcache")
-	settings.RepositoryConfig = filepath.Join(os.TempDir(), "helmconfig")
-	return settings
-}
-
-func GetChartManifest(chartName string, version string, unstable bool) (*chart.Metadata, error) {
+func GetChartManifest(ctx context.Context, chartName string, version string, unstable bool) (*chart.Metadata, error) {
 	repo := HelmRepoName
 	if unstable {
 		repo = UnstableRepoName()
@@ -49,7 +40,7 @@ func GetChartManifest(chartName string, version string, unstable bool) (*chart.M
 	hshow.Devel = unstable
 	hshow.Version = version
 
-	path, err := hshow.LocateChart(chartName, cliSettings())
+	path, err := hshow.LocateChart(chartName, settingsFromContext(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +70,7 @@ func TemplateChart(ctx context.Context, name string, options ChartOptions) ([]Ya
 
 	chartName := fmt.Sprintf("%s/%s", repo, name)
 
-	settings := cliSettings()
+	settings := settingsFromContext(ctx)
 	//providers := getter.All(settings)
 	logger := logger.FromContext(ctx)
 
@@ -153,4 +144,17 @@ func TemplateChart(ctx context.Context, name string, options ChartOptions) ([]Ya
 		docs = append(docs, doc)
 	}
 	return docs, nil
+}
+
+// Clean removes all the temporary directories that have been used by Helm
+func Clean(ctx context.Context) {
+	settings := settingsFromContext(ctx)
+	log := logger.FromContext(ctx)
+
+	if err := os.RemoveAll(settings.RepositoryCache); err != nil {
+		log.Warnf("Could not remove temporary dir \"%s\": %s", settings.RepositoryCache, err.Error())
+	}
+	if err := os.RemoveAll(settings.RepositoryConfig); err != nil {
+		log.Warnf("Could not remove temporary file \"%s\": %s", settings.RepositoryConfig, err.Error())
+	}
 }
