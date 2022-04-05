@@ -15,6 +15,7 @@
 package helmw
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -26,7 +27,7 @@ import (
 const HelmRepoName = "karavel"
 const HelmDefaultRepo = "https://repository.platform.karavel.io"
 
-func SetupHelm(version string, repoUrl string) error {
+func SetupHelm(ctx context.Context, version string, repoUrl string) error {
 	if version == "" {
 		return fmt.Errorf("version cannot be empty")
 	}

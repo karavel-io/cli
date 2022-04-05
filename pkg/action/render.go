@@ -15,6 +15,7 @@
 package action
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -39,7 +40,7 @@ type RenderParams struct {
 	SkipGit    bool
 }
 
-func Render(log logger.Logger, params RenderParams) error {
+func Render(ctx context.Context, params RenderParams) error {
 	cpath := params.ConfigPath
 	skipGit := params.SkipGit
 	workdir := filepath.Dir(cpath)
@@ -48,6 +49,7 @@ func Render(log logger.Logger, params RenderParams) error {
 	projsDir := filepath.Join(workdir, "projects")
 	argoEnabled := true
 
+	log := logger.FromContext(ctx)
 	log.Infof("Rendering new Karavel project with config file %s", cpath)
 
 	log.Debug("Reading config file")
@@ -58,17 +60,17 @@ func Render(log logger.Logger, params RenderParams) error {
 
 	log.Debugf("Karavel Container Platform version %s", cfg.Version)
 	log.Debugf("Updating Karavel components stable repository %s", cfg.HelmStableRepoUrl)
-	if err := helmw.SetupHelm(cfg.Version, cfg.HelmStableRepoUrl); err != nil {
+	if err := helmw.SetupHelm(ctx, cfg.Version, cfg.HelmStableRepoUrl); err != nil {
 		return fmt.Errorf("failed to setup Karavel stable components repository: %w", err)
 	}
 
 	log.Debugf("Updating Karavel components unstable repository %s", cfg.HelmUntableRepoUrl)
-	if err := helmw.SetupHelm("unstable", cfg.HelmUntableRepoUrl); err != nil {
+	if err := helmw.SetupHelm(ctx, "unstable", cfg.HelmUntableRepoUrl); err != nil {
 		return fmt.Errorf("failed to setup Karavel unstable components repository: %w", err)
 	}
 
 	log.Debug("Creating render plan from config")
-	p, err := plan.NewFromConfig(log, &cfg)
+	p, err := plan.NewFromConfig(ctx, log, &cfg)
 	if err != nil {
 		return fmt.Errorf("failed to instantiate render plan from config: %w", err)
 	}
@@ -151,7 +153,7 @@ func Render(log logger.Logger, params RenderParams) error {
 			log.Infof("Rendering component %s at %s", comp.DebugLabel(), strings.ReplaceAll(outdir, filepath.Dir(workdir)+"/", ""))
 			log.Debugf("Component %s params: %s", comp.DebugLabel(), comp.Params())
 
-			if err := comp.Render(log, outdir); err != nil {
+			if err := comp.Render(ctx, log, outdir); err != nil {
 				ch <- utils.NewPair(msg, err)
 				return
 			}

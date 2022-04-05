@@ -16,6 +16,7 @@ package helmw
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -26,7 +27,15 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
+	"helm.sh/helm/v3/pkg/cli"
 )
+
+func cliSettings() *cli.EnvSettings {
+	settings := cli.New()
+	settings.RepositoryCache = filepath.Join(os.TempDir(), "helmcache")
+	settings.RepositoryConfig = filepath.Join(os.TempDir(), "helmconfig")
+	return settings
+}
 
 func GetChartManifest(chartName string, version string, unstable bool) (*chart.Metadata, error) {
 	repo := HelmRepoName
@@ -35,21 +44,11 @@ func GetChartManifest(chartName string, version string, unstable bool) (*chart.M
 	}
 
 	chartName = fmt.Sprintf("%s/%s", repo, chartName)
-	hc, err := helmclient.New(&helmclient.Options{
-		//TODO replace this with a proper temp implementation
-		RepositoryCache:  filepath.Join(os.TempDir(), "helmcache"),
-		RepositoryConfig: filepath.Join(os.TempDir(), "helmconfig"),
-		Debug:            true,
-	})
-	if err != nil {
-		return nil, err
-	}
-	h := hc.(*helmclient.HelmClient)
 	hshow := action.NewShow(action.ShowAll)
 	hshow.Devel = unstable
 	hshow.Version = version
 
-	path, err := hshow.LocateChart(chartName, h.Settings)
+	path, err := hshow.LocateChart(chartName, cliSettings())
 	if err != nil {
 		return nil, err
 	}
@@ -64,11 +63,19 @@ func GetChartManifest(chartName string, version string, unstable bool) (*chart.M
 
 type YamlDoc map[string]interface{}
 
-func TemplateChart(name string, namespace string, version string, values string, unstable bool) ([]YamlDoc, error) {
+type ChartOptions struct {
+	Namespace string
+	Version   string
+	Values    string
+	Unstable  bool
+}
+
+func TemplateChart(ctx context.Context, name string, options ChartOptions) ([]YamlDoc, error) {
 	repo := HelmRepoName
-	if unstable {
+	if options.Unstable {
 		repo = UnstableRepoName()
 	}
+
 	hc, err := helmclient.New(&helmclient.Options{
 		//TODO replace this with a proper temp implementation
 		RepositoryCache:  filepath.Join(os.TempDir(), "helmcache"),
@@ -82,10 +89,10 @@ func TemplateChart(name string, namespace string, version string, values string,
 
 	ch := &helmclient.ChartSpec{
 		ChartName:  fmt.Sprintf("%s/%s", repo, name),
-		Namespace:  namespace,
-		Version:    version,
+		Namespace:  options.Namespace,
+		Version:    options.Version,
 		SkipCRDs:   false,
-		ValuesYaml: values,
+		ValuesYaml: options.Values,
 	}
 
 	manifests, err := h.TemplateChart(ch)

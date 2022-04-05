@@ -15,6 +15,7 @@
 package plan
 
 import (
+	"context"
 	"fmt"
 	"sync"
 
@@ -29,7 +30,7 @@ type Plan struct {
 	log            logger.Logger
 }
 
-func NewFromConfig(log logger.Logger, cfg *config.Config) (*Plan, error) {
+func NewFromConfig(ctx context.Context, log logger.Logger, cfg *config.Config) (*Plan, error) {
 	p := New(log)
 
 	var wg sync.WaitGroup

@@ -41,12 +41,13 @@ type InitParams struct {
 	FileUrlOverride string
 }
 
-func Initialize(log logger.Logger, params InitParams) error {
+func Initialize(ctx context.Context, params InitParams) error {
 	workdir := params.Workdir
 	ver := params.KaravelVersion
 	filename := params.Filename
 	force := params.Force
 
+	log := logger.FromContext(ctx)
 	log.Infof("Initializing new Karavel %s project at %s", ver, workdir)
 	log.Info()
 
