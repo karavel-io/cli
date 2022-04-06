@@ -41,14 +41,14 @@ $ docker run --rm -v $PWD:/karavel -u (id -u) quay.io/karavel/cli:main render
 $ docker run --rm -v $PWD:/karavel -u (id -u) ghcr.io/karavel-io/cli:main render
 ```
 
-Stable releases are tagged using their semver (`x.y.z`) version, with aliases to the latest patch (`x.y`) and minor (`x`) versions. 
+Stable releases are tagged using their semver (`x.y.z`) version, with aliases to the latest patch (`x.y`) and minor (`x`) versions.
 This is what you should be using most of the time.  
 The `main` tag points to the latest unstable build from the `main` branch. It's useful if you want to try out the latest
 features before they are released.
 
 ## Requirements
 
-- Go 1.17+
+- Go 1.18+
 - make
 
 For [Nix] or [NixOS] users, the provided [shell.nix](shell.nix) already configures the required tooling.
@@ -59,6 +59,6 @@ For [Nix] or [NixOS] users, the provided [shell.nix](shell.nix) already configur
 `make install` installs the executable in the PATH. Install location can be changed by passing the `INSTALL_PATH` variable:
 `make INSTALL_PATH=/path/to/karavel install`
 
-[Karavel Container Platform]: https://platform.karavel.io
-[Nix]: https://nixos.org/explore.html
-[NixOS]: https://nixos.org
+[karavel container platform]: https://platform.karavel.io
+[nix]: https://nixos.org/explore.html
+[nixos]: https://nixos.org
