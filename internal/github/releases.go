@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"strings"
 )
 
 const ErrGitHubApi = "failed to fetch releases from GitHub API"
@@ -54,5 +55,14 @@ func FetchLatestRelease(ctx context.Context, apiUrl string) (string, error) {
 }
 
 func sortReleases(releases []string) {
+	for i, rel := range releases {
+		if !strings.Contains(rel, "-rc") {
+			releases[i] = rel + "-zzz" // This is so that 2022.5 is sorted before 2022.5-rc.1
+		}
+	}
 	sort.Sort(sort.Reverse(sort.StringSlice(releases)))
+
+	for i, rel := range releases {
+		releases[i] = strings.TrimSuffix(rel, "-zzz")
+	}
 }
