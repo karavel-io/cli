@@ -1,0 +1,58 @@
+package github
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"sort"
+)
+
+const ErrGitHubApi = "failed to fetch releases from GitHub API"
+
+type ghError struct {
+	Message string `json:"message"`
+}
+
+type tag struct {
+	Name string `json:"name"`
+}
+
+func FetchLatestRelease(ctx context.Context, apiUrl string) (string, error) {
+	req, err := http.NewRequestWithContext(ctx, "GET", apiUrl, nil)
+	if err != nil {
+		return "", err
+	}
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+
+	defer res.Body.Close()
+
+	if res.StatusCode >= 400 {
+		var gherr ghError
+		if err := json.NewDecoder(res.Body).Decode(&gherr); err != nil {
+			return "", err
+		}
+		return "", fmt.Errorf("%s: %s", ErrGitHubApi, gherr.Message)
+	}
+
+	tags := make([]tag, 0)
+	if err := json.NewDecoder(res.Body).Decode(&tags); err != nil {
+		return "", err
+	}
+
+	versions := make([]string, len(tags))
+	for _, tag := range tags {
+		versions = append(versions, tag.Name)
+	}
+
+	sortReleases(versions)
+	return versions[0], nil
+}
+
+func sortReleases(releases []string) {
+	sort.Sort(sort.Reverse(sort.StringSlice(releases)))
+}

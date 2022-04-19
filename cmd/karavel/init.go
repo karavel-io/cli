@@ -28,7 +28,7 @@ func NewInitCommand() *cobra.Command {
 	var ver string
 	var filename string
 	var force bool
-	var cfgUrl string
+	var repo string
 
 	cmd := &cobra.Command{
 		Use:   "init [WORKDIR]",
@@ -55,11 +55,11 @@ func NewInitCommand() *cobra.Command {
 			ver = strings.TrimPrefix(ver, "v")
 
 			return action.Initialize(cmd.Context(), action.InitParams{
-				Workdir:         cwd,
-				Filename:        filename,
-				KaravelVersion:  ver,
-				Force:           force,
-				FileUrlOverride: cfgUrl,
+				Workdir:        cwd,
+				Filename:       filename,
+				KaravelVersion: ver,
+				Force:          force,
+				GitHubRepo:     repo,
 			})
 		},
 	}
@@ -67,7 +67,7 @@ func NewInitCommand() *cobra.Command {
 	cmd.Flags().StringVarP(&ver, "version", "v", "latest", "Karavel Container Platform version to initialize")
 	cmd.Flags().StringVarP(&filename, "output-file", "o", DefaultFileName, "Karavel config file name to create")
 	cmd.Flags().BoolVar(&force, "force", false, "Overwrite the config file even if it already exists")
-	cmd.Flags().StringVar(&cfgUrl, "config-url", "", "Override the official URL pointing to the Karavel config file to download")
+	cmd.Flags().StringVar(&repo, "github-repo", "", "Override the official GitHub repository containing the tagged Platform releases")
 
 	return cmd
 }

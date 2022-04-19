@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Init now uses the GitHub tags API to fetch the latest version and generates an empty `karavel.hcl`, instead of trying to download an example file from the release.
+
 ## [0.2.1] 2022-03-08
 
 ### Fixed

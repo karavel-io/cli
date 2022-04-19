@@ -15,31 +15,45 @@
 package action
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io/ioutil"
-	"net/url"
 	"os"
-	"path"
 	"path/filepath"
-	"time"
+	"text/template"
 
-	"github.com/karavel-io/cli/internal/utils"
+	"github.com/karavel-io/cli/internal/github"
 	"github.com/karavel-io/cli/pkg/logger"
 )
 
-const (
-	latestReleaseURL = "https://github.com/karavel-io/platform/releases/latest/download"
-	releaseUrl       = "https://github.com/karavel-io/platform/releases/%s/download"
-)
-
 type InitParams struct {
-	Workdir         string
-	Filename        string
-	KaravelVersion  string
-	Force           bool
-	FileUrlOverride string
+	Workdir        string
+	Filename       string
+	KaravelVersion string
+	Force          bool
+	GitHubRepo     string
 }
+
+const cfgTpl = `version = "{{ . }}"
+
+#  Now you can add some Karavel components to install in your cluster.
+#  For a list of available components consult https://platform.karavel.io/components/
+#
+#  component "example" {
+#    namespace = "example"
+#
+#    some = "param"
+#    other = {
+#      configuration = "values"
+#    }
+#  }
+`
+
+const (
+	githubRepo      = "karavel-io/platform"
+	githubApiURLTpl = "https://api.github.com/repos/%s/tags"
+)
 
 func Initialize(ctx context.Context, params InitParams) error {
 	workdir := params.Workdir
@@ -49,27 +63,6 @@ func Initialize(ctx context.Context, params InitParams) error {
 
 	log := logger.FromContext(ctx)
 	log.Infof("Initializing new Karavel %s project at %s", ver, workdir)
-	log.Info()
-
-	var baseUrlStr string
-	if ver == "latest" {
-		baseUrlStr = latestReleaseURL
-	} else {
-		baseUrlStr = fmt.Sprintf(releaseUrl, ver)
-	}
-
-	baseUrl, err := url.Parse(baseUrlStr)
-	if err != nil {
-		return fmt.Errorf("failed to parse download URL: %w", err)
-	}
-
-	cfgUrl := params.FileUrlOverride
-	if cfgUrl == "" {
-		baseUrl.Path = path.Join(baseUrl.Path, filename)
-		cfgUrl = baseUrl.String()
-	}
-
-	log.Infof("Fetching starting config from %s", cfgUrl)
 	log.Info()
 
 	if err := os.MkdirAll(workdir, 0o755); err != nil {
@@ -83,36 +76,38 @@ func Initialize(ctx context.Context, params InitParams) error {
 	}
 
 	if info != nil && !force {
-		return fmt.Errorf("Karavel config file %s already exists: %w", filename, err)
+		return fmt.Errorf("Karavel config file %s already exists", filename)
 	}
 
 	if info != nil && force {
 		log.Warnf("Karavel config file %s already exists and will be overwritten", filename)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
-	defer cancel()
+	if ver == "" || ver == "latest" {
+		repo := params.GitHubRepo
+		if repo == "" {
+			repo = githubRepo
+		}
 
-	cfg, err := download(ctx, log, cfgUrl)
+		apiUrl := fmt.Sprintf(githubApiURLTpl, repo)
+		log.Infof("Fetching latest release version for GitHub repo %s", repo)
+		ver, err = github.FetchLatestRelease(ctx, apiUrl)
+		if err != nil {
+			return err
+		}
+	}
+
+	cfg, err := template.New("karavel.hcl").Parse(cfgTpl)
 	if err != nil {
+		return err
+	}
+
+	var buf bytes.Buffer
+	if err = cfg.Execute(&buf, ver); err != nil {
 		return err
 	}
 
 	log.Info()
 	log.Infof("Writing config file to %s", filedst)
-	return ioutil.WriteFile(filedst, cfg, 0o655)
-}
-
-func download(ctx context.Context, log logger.Logger, url string) ([]byte, error) {
-	f, err := ioutil.TempFile("", path.Base(url))
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	defer os.Remove(f.Name())
-
-	if err := utils.DownloadWithProgress(ctx, log, url, f.Name()); err != nil {
-		return nil, err
-	}
-	return ioutil.ReadFile(f.Name())
+	return ioutil.WriteFile(filedst, buf.Bytes(), 0o655)
 }
