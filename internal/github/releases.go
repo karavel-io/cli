@@ -9,7 +9,9 @@ import (
 	"strings"
 )
 
-const ErrGitHubApi = "failed to fetch releases from GitHub API"
+const ErrSetup = "failed to construct HTTP request from GitHub API"
+const ErrHttp = "failed to fetch releases from GitHub API"
+const ErrJson = "failed to decode JSON response from GitHub API"
 
 type ghError struct {
 	Message string `json:"message"`
@@ -22,12 +24,12 @@ type tag struct {
 func FetchLatestRelease(ctx context.Context, apiUrl string) (string, error) {
 	req, err := http.NewRequestWithContext(ctx, "GET", apiUrl, nil)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%s: %w", ErrSetup, err)
 	}
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%s: %w", ErrHttp, err)
 	}
 
 	defer res.Body.Close()
@@ -37,12 +39,12 @@ func FetchLatestRelease(ctx context.Context, apiUrl string) (string, error) {
 		if err := json.NewDecoder(res.Body).Decode(&gherr); err != nil {
 			return "", err
 		}
-		return "", fmt.Errorf("%s: %s", ErrGitHubApi, gherr.Message)
+		return "", fmt.Errorf("%s: %w", ErrHttp, fmt.Errorf("%s", gherr.Message))
 	}
 
 	tags := make([]tag, 0)
 	if err := json.NewDecoder(res.Body).Decode(&tags); err != nil {
-		return "", err
+		return "", fmt.Errorf("%s: %w", ErrJson, err)
 	}
 
 	versions := make([]string, len(tags))
