@@ -35,8 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `karavel init` first implementation
 - `karavel render` first implementation
 
-[unreleased]: https://github.com/mikamai/onesignal-ruby/compare/0.2.1...HEAD
-[0.2.1]: https://github.com/mikamai/onesignal-ruby/releases/compare/0.2.0...0.2.1
-[0.2.0]: https://github.com/mikamai/onesignal-ruby/releases/compare/0.1.1...0.2.0
-[0.1.1]: https://github.com/mikamai/onesignal-ruby/releases/compare/0.1.0...0.1.1
-[0.1.0]: https://github.com/mikamai/onesignal-ruby/releases/tag/0.1.0
+[unreleased]: https://github.com/karavel-io/cli/compare/0.2.1...HEAD
+[0.2.1]: https://github.com/karavel-io/cli/releases/compare/0.2.0...0.2.1
+[0.2.0]: https://github.com/karavel-io/cli/releases/compare/0.1.1...0.2.0
+[0.1.1]: https://github.com/karavel-io/cli/releases/compare/0.1.0...0.1.1
+[0.1.0]: https://github.com/karavel-io/cli/releases/tag/0.1.0
