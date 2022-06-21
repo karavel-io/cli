@@ -37,7 +37,7 @@ func DownloadWithProgress(ctx context.Context, log logger.Logger, url string, fi
 
 	start := time.Now()
 
-	out, err := os.OpenFile(filename, os.O_CREATE|os.O_RDWR, 0666)
+	out, err := os.OpenFile(filename, os.O_CREATE|os.O_RDWR, 0o666)
 	if err != nil {
 		return err
 	}

@@ -17,9 +17,10 @@ package argo
 import (
 	"bytes"
 	"fmt"
-	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"time"
+
+	"gopkg.in/yaml.v3"
 )
 
 // Application is a lightweight struct matching argoproj.io/v1alpha1/Application
@@ -131,7 +132,7 @@ func (app *Application) Render(outfile string) error {
 		return fmt.Errorf("%s: %w", deferr, err)
 	}
 
-	if err := ioutil.WriteFile(outfile, buf.Bytes(), 0655); err != nil {
+	if err := ioutil.WriteFile(outfile, buf.Bytes(), 0o655); err != nil {
 		return fmt.Errorf("%s: %w", deferr, err)
 	}
 	return nil

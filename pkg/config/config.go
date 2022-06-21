@@ -28,9 +28,7 @@ import (
 	"github.com/zclconf/go-cty/cty/json"
 )
 
-var (
-	ErrConfigParseFailed = errors.New("failed to parse Karavel config")
-)
+var ErrConfigParseFailed = errors.New("failed to parse Karavel config")
 
 type Config struct {
 	Version            string      `hcl:"version"`
