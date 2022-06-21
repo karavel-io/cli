@@ -39,6 +39,9 @@ type Version struct {
 func Get() Version {
 	info, ok := debug.ReadBuildInfo()
 	if ok {
+		if version == "" {
+			version = info.Main.Version
+		}
 		for _, setting := range info.Settings {
 			switch setting.Key {
 			case "vcs.revision":

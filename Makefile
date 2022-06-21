@@ -13,14 +13,8 @@ endif
 PKGS          = $(PROJ_DIR)/...
 
 VERSION    = $(shell cat $(PROJ_DIR)/VERSION)
-GIT_COMMIT = $(shell git rev-parse  HEAD)
-GIT_DIRTY  = $(shell test -n "`git status --porcelain`" && echo "dirty" || echo "clean")
-BUILD_DATE = $(shell date +'%Y-%m-%d %H:%M:%S')
 
 LDFLAGS    += -X 'github.com/karavel-io/cli/internal/version.version=${VERSION}'
-LDFLAGS    += -X 'github.com/karavel-io/cli/internal/version.gitCommit=${GIT_COMMIT}'
-LDFLAGS    += -X 'github.com/karavel-io/cli/internal/version.gitTreeState=${GIT_DIRTY}'
-LDFLAGS    += -X 'github.com/karavel-io/cli/internal/version.buildDate=${BUILD_DATE}'
 LDFLAGS    += $(EXT_LDFLAGS)
 
 .PHONY: all
