@@ -9,9 +9,11 @@ import (
 	"strings"
 )
 
-const ErrSetup = "failed to construct HTTP request from GitHub API"
-const ErrHttp = "failed to fetch releases from GitHub API"
-const ErrJson = "failed to decode JSON response from GitHub API"
+const (
+	ErrSetup = "failed to construct HTTP request from GitHub API"
+	ErrHttp  = "failed to fetch releases from GitHub API"
+	ErrJson  = "failed to decode JSON response from GitHub API"
+)
 
 type ghError struct {
 	Message string `json:"message"`
