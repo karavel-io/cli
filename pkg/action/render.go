@@ -90,7 +90,7 @@ func Render(ctx context.Context, params RenderParams) error {
 	defer helmw.Clean(ctx)
 
 	log.Debug("Creating render plan from config")
-	p, err := plan.NewFromConfig(ctx, log, &cfg)
+	p, err := plan.NewFromConfig(ctx, &cfg)
 	if err != nil {
 		return fmt.Errorf("failed to instantiate render plan from config: %w", err)
 	}
@@ -113,7 +113,7 @@ func Render(ctx context.Context, params RenderParams) error {
 
 	for _, dir := range assertDirs {
 		log.Debugf("Asserting directory %s", dir)
-		if err := os.MkdirAll(dir, 0755); err != nil {
+		if err := os.MkdirAll(dir, 0o755); err != nil {
 			return fmt.Errorf("failed to create directory %s: %w", dir, err)
 		}
 	}
@@ -147,12 +147,12 @@ func Render(ctx context.Context, params RenderParams) error {
 			return err
 		}
 
-		path, err := filepath.Rel(dir, workdir)
+		file, err := filepath.Rel(dir, workdir)
 		if err != nil {
 			return err
 		}
 
-		repoPath, repoUrl = path, url
+		repoPath, repoUrl = file, url
 	}
 
 	// empty line for nice logs
@@ -241,7 +241,7 @@ func Render(ctx context.Context, params RenderParams) error {
 		}
 
 		infraProj := "infrastructure.yml"
-		if err := ioutil.WriteFile(filepath.Join(projsDir, infraProj), []byte(fmt.Sprintf(argoProject, argoNs)), 0655); err != nil {
+		if err := ioutil.WriteFile(filepath.Join(projsDir, infraProj), []byte(fmt.Sprintf(argoProject, argoNs)), 0o655); err != nil {
 			return fmt.Errorf("failed to render infrastructure project file: %w", err)
 		}
 
