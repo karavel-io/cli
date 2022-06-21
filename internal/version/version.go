@@ -16,6 +16,7 @@ package version
 
 import (
 	"runtime"
+	"runtime/debug"
 )
 
 var (
@@ -36,6 +37,24 @@ type Version struct {
 }
 
 func Get() Version {
+	info, ok := debug.ReadBuildInfo()
+	if ok {
+		for _, setting := range info.Settings {
+			switch setting.Key {
+			case "vcs.revision":
+				gitCommit = setting.Value
+			case "vcs.time":
+				buildDate = setting.Value
+			case "vcs.modified":
+				if setting.Value == "true" {
+					gitTreeState = "dirty"
+				} else {
+					gitTreeState = "clean"
+				}
+			}
+		}
+	}
+
 	return Version{
 		Version:      version,
 		GitCommit:    gitCommit,
