@@ -30,7 +30,8 @@ type Plan struct {
 	log            logger.Logger
 }
 
-func NewFromConfig(ctx context.Context, log logger.Logger, cfg *config.Config) (*Plan, error) {
+func NewFromConfig(ctx context.Context, cfg *config.Config) (*Plan, error) {
+	log := logger.FromContext(ctx)
 	p := New(log)
 
 	var wg sync.WaitGroup
