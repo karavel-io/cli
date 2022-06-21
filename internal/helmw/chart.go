@@ -71,7 +71,7 @@ func TemplateChart(ctx context.Context, name string, options ChartOptions) ([]Ya
 	chartName := fmt.Sprintf("%s/%s", repo, name)
 
 	settings := settingsFromContext(ctx)
-	//providers := getter.All(settings)
+	// providers := getter.All(settings)
 	logger := logger.FromContext(ctx)
 
 	config := new(action.Configuration)

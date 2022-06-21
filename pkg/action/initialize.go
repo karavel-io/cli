@@ -72,7 +72,7 @@ func Initialize(ctx context.Context, params InitParams) error {
 	log.Infof("Fetching starting config from %s", cfgUrl)
 	log.Info()
 
-	if err := os.MkdirAll(workdir, 0755); err != nil {
+	if err := os.MkdirAll(workdir, 0o755); err != nil {
 		return err
 	}
 
@@ -100,7 +100,7 @@ func Initialize(ctx context.Context, params InitParams) error {
 
 	log.Info()
 	log.Infof("Writing config file to %s", filedst)
-	return ioutil.WriteFile(filedst, cfg, 0655)
+	return ioutil.WriteFile(filedst, cfg, 0o655)
 }
 
 func download(ctx context.Context, log logger.Logger, url string) ([]byte, error) {

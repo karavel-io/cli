@@ -25,8 +25,10 @@ import (
 
 type contextKey string
 
-var repoKey contextKey = "helmw.repo"
-var settingsKey contextKey = "helmw.settings"
+var (
+	repoKey     contextKey = "helmw.repo"
+	settingsKey contextKey = "helmw.settings"
+)
 
 func FromContext(ctx context.Context) *repo.File {
 	val, ok := ctx.Value(repoKey).(*repo.File)

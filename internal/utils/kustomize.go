@@ -84,7 +84,7 @@ func RenderKustomizeFile(outdir string, resources []string, ignoreFn func(s stri
 		return err
 	}
 
-	if err := ioutil.WriteFile(filename, buf.Bytes(), 0655); err != nil {
+	if err := ioutil.WriteFile(filename, buf.Bytes(), 0o655); err != nil {
 		return err
 	}
 

@@ -38,7 +38,7 @@ func (*ConfigTestSuite) prepareConfig(cfg string) *os.File {
 		panic(f)
 	}
 
-	if err := ioutil.WriteFile(f.Name(), []byte(cfg), 0600); err != nil {
+	if err := ioutil.WriteFile(f.Name(), []byte(cfg), 0o600); err != nil {
 		panic(err)
 	}
 

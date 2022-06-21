@@ -172,7 +172,7 @@ func (c *Component) Render(ctx context.Context, log logger.Logger, outdir string
 		return fmt.Errorf(errorFormat, c.name, c.version, err)
 	}
 
-	if err := os.MkdirAll(outdir, 0755); err != nil {
+	if err := os.MkdirAll(outdir, 0o755); err != nil {
 		return fmt.Errorf(errorFormat, c.name, c.version, err)
 	}
 
@@ -232,7 +232,7 @@ func (c *Component) Render(ctx context.Context, log logger.Logger, outdir string
 			basename := fmt.Sprintf("%s-%s%s.yml", k, meta["name"], ns)
 			filename := filepath.Join(outdir, basename)
 			log.Debugf("component %s writing file %s", c.DebugLabel(), filepath.Join(filepath.Base(outdir), basename))
-			if err := ioutil.WriteFile(filename, buf.Bytes(), 0655); err != nil {
+			if err := ioutil.WriteFile(filename, buf.Bytes(), 0o655); err != nil {
 				resch <- routineRes{err: err}
 			}
 
