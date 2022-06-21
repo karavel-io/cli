@@ -4,7 +4,7 @@ let
 in
 pkgs.mkShell {
   buildInputs = with pkgs; [
-    unstable.go_1_18
+    go_1_18
     addlicense
     gnumake
     unstable.goreleaser
