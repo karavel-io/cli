@@ -23,12 +23,12 @@ import (
 	"helm.sh/helm/v3/pkg/repo"
 )
 
-const HelmRepoName = "karavel"
-const HelmDefaultRepo = "https://repository.platform.karavel.io"
-
-var (
-	ErrVersionEmpty = fmt.Errorf("version cannot be empty")
+const (
+	HelmRepoName    = "karavel"
+	HelmDefaultRepo = "https://repository.platform.karavel.io"
 )
+
+var ErrVersionEmpty = fmt.Errorf("version cannot be empty")
 
 func NewRepo(version string, repoUrl string) (*repo.Entry, error) {
 	if version == "" {
@@ -78,7 +78,7 @@ func WithRepository(ctx context.Context, entry *repo.Entry) (context.Context, er
 	store.Update(entry)
 
 	// Write updated config to file
-	err = store.WriteFile(settings.RepositoryConfig, 0644)
+	err = store.WriteFile(settings.RepositoryConfig, 0o644)
 	if err != nil {
 		return ctx, err
 	}
