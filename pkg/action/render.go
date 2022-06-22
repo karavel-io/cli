@@ -119,7 +119,7 @@ func Render(ctx context.Context, params RenderParams) error {
 	}
 
 	var wg sync.WaitGroup
-	ch := make(chan utils.Pair)
+	ch := make(chan utils.Pair[string, error])
 	appNames := make(chan string)
 	done := make(chan bool)
 
@@ -223,9 +223,9 @@ func Render(ctx context.Context, params RenderParams) error {
 		case name := <-appNames:
 			apps = append(apps, name)
 		case pair := <-ch:
-			err := pair.ErrorB()
+			err := pair.B()
 			if err != nil {
-				return fmt.Errorf("%s: %w", pair.StringA(), err)
+				return fmt.Errorf("%s: %w", pair.A(), err)
 			}
 		case <-done:
 			open = false
