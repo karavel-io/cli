@@ -53,7 +53,7 @@ func GetChartManifest(ctx context.Context, chartName string, version string, uns
 	return ch.Metadata, nil
 }
 
-type YamlDoc map[string]interface{}
+type YamlDoc map[string]any
 
 type ChartOptions struct {
 	Namespace string

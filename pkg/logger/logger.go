@@ -31,16 +31,16 @@ const (
 )
 
 type Logger interface {
-	Debug(a ...interface{})
-	Debugf(format string, a ...interface{})
-	Info(a ...interface{})
-	Infof(format string, a ...interface{})
-	Warn(a ...interface{})
-	Warnf(format string, a ...interface{})
-	Error(a ...interface{})
-	Errorf(format string, a ...interface{})
-	Fatal(a ...interface{})
-	Fatalf(format string, a ...interface{})
+	Debug(a ...any)
+	Debugf(format string, a ...any)
+	Info(a ...any)
+	Infof(format string, a ...any)
+	Warn(a ...any)
+	Warnf(format string, a ...any)
+	Error(a ...any)
+	Errorf(format string, a ...any)
+	Fatal(a ...any)
+	Fatalf(format string, a ...any)
 	Writer() io.Writer
 	Level() Level
 	SetLevel(lvl Level)
@@ -96,49 +96,49 @@ func (l *logger) SetColors(active bool) {
 	l.colors = active
 }
 
-func (l *logger) Debug(a ...interface{}) {
+func (l *logger) Debug(a ...any) {
 	l.output(LvlDebug, a...)
 }
 
-func (l *logger) Debugf(format string, a ...interface{}) {
+func (l *logger) Debugf(format string, a ...any) {
 	l.outputf(LvlDebug, format, a...)
 }
 
-func (l *logger) Info(a ...interface{}) {
+func (l *logger) Info(a ...any) {
 	l.output(LvlInfo, a...)
 }
 
-func (l *logger) Infof(format string, a ...interface{}) {
+func (l *logger) Infof(format string, a ...any) {
 	l.outputf(LvlInfo, format, a...)
 }
 
-func (l *logger) Warn(a ...interface{}) {
+func (l *logger) Warn(a ...any) {
 	l.output(LvlWarn, a...)
 }
 
-func (l *logger) Warnf(format string, a ...interface{}) {
+func (l *logger) Warnf(format string, a ...any) {
 	l.outputf(LvlWarn, format, a...)
 }
 
-func (l *logger) Error(a ...interface{}) {
+func (l *logger) Error(a ...any) {
 	l.output(LvlError, a...)
 }
 
-func (l *logger) Errorf(format string, a ...interface{}) {
+func (l *logger) Errorf(format string, a ...any) {
 	l.outputf(LvlError, format, a...)
 }
 
-func (l *logger) Fatal(a ...interface{}) {
+func (l *logger) Fatal(a ...any) {
 	l.Error(a...)
 	os.Exit(1)
 }
 
-func (l *logger) Fatalf(format string, a ...interface{}) {
+func (l *logger) Fatalf(format string, a ...any) {
 	l.Errorf(format, a...)
 	os.Exit(1)
 }
 
-func (l *logger) output(lvl Level, a ...interface{}) {
+func (l *logger) output(lvl Level, a ...any) {
 	if !IsLevelActive(l.lvl, lvl) {
 		return
 	}
@@ -148,21 +148,21 @@ func (l *logger) output(lvl Level, a ...interface{}) {
 		prefix = true
 	}
 
-	var p func(a ...interface{}) string
+	var p func(a ...any) string
 	switch lvl {
 	case LvlDebug:
-		a = append([]interface{}{debugPrefix, " "}, a...)
+		a = append([]any{debugPrefix, " "}, a...)
 		p = l.palette.debug.SprintFunc()
 	case LvlInfo:
 		if prefix && !l.colors {
-			a = append([]interface{}{infoPrefix, " "}, a...)
+			a = append([]any{infoPrefix, " "}, a...)
 		}
 		p = l.palette.info.SprintFunc()
 	case LvlWarn:
-		a = append([]interface{}{warnPrefix, " "}, a...)
+		a = append([]any{warnPrefix, " "}, a...)
 		p = l.palette.warn.SprintFunc()
 	case LvlError:
-		a = append([]interface{}{errorPrefix, " "}, a...)
+		a = append([]any{errorPrefix, " "}, a...)
 		p = l.palette.error.SprintFunc()
 	default:
 		return
@@ -170,7 +170,7 @@ func (l *logger) output(lvl Level, a ...interface{}) {
 	_, _ = fmt.Fprintln(l.w, p(a...))
 }
 
-func (l *logger) outputf(lvl Level, s string, a ...interface{}) {
+func (l *logger) outputf(lvl Level, s string, a ...any) {
 	if !IsLevelActive(l.lvl, lvl) {
 		return
 	}
@@ -183,7 +183,7 @@ func (l *logger) outputf(lvl Level, s string, a ...interface{}) {
 		prefix = true
 	}
 
-	var p func(format string, a ...interface{}) string
+	var p func(format string, a ...any) string
 	switch lvl {
 	case LvlDebug:
 		s = debugPrefix + " " + s

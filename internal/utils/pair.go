@@ -14,35 +14,19 @@
 
 package utils
 
-type Pair struct {
-	a interface{}
-	b interface{}
+type Pair[A any, B any] struct {
+	a A
+	b B
 }
 
-func NewPair(a interface{}, b interface{}) Pair {
-	return Pair{a, b}
+func NewPair[A any, B any](a A, b B) Pair[A, B] {
+	return Pair[A, B]{a, b}
 }
 
-func (p *Pair) A() interface{} {
+func (p *Pair[A, B]) A() A {
 	return p.a
 }
 
-func (p *Pair) B() interface{} {
+func (p *Pair[A, B]) B() B {
 	return p.b
-}
-
-func (p *Pair) StringA() string {
-	s, done := p.a.(string)
-	if done {
-		return s
-	}
-	return ""
-}
-
-func (p *Pair) ErrorB() error {
-	b, done := p.b.(error)
-	if done {
-		return b
-	}
-	return nil
 }
