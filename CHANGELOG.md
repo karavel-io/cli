@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The version/git commit fields are now filled even when building directly from source (eg. `go install github.com/karavel-io/cli@latest`)
 - To avoid stale caches, each run of karavel will now make its own distinct temporary folders.
 - Version tags are now prefixed with a `v` to comply with Go's expected versioning scheme for modules (so 0.3.0 is `v0.3.0`)
-- 
+
 ### Fixed
 
 - Karavel now uses the proper TEMP path on Windows instead of `/tmp`
