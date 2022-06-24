@@ -19,7 +19,7 @@ import "github.com/hashicorp/hcl/v2"
 type Component struct {
 	Name          string                    `hcl:"name,label"`
 	ComponentName string                    `hcl:"component,optional"`
-	Namespace     string                    `hcl:"namespace"`
+	Namespace     string                    `hcl:"namespace,optional"`
 	Version       string                    `hcl:"version,optional"`
 	RawParams     map[string]*hcl.Attribute `hcl:",remain"`
 	JsonParams    string

@@ -119,6 +119,19 @@ func TemplateChart(ctx context.Context, name string, options ChartOptions) ([]Ya
 		return nil, fmt.Errorf("could not decode values: %w", err)
 	}
 
+	// If a custom namespace is not specified, get the one in values
+	if install.Namespace == "" {
+		defaultNamespaceRaw, ok := chart.Values["namespace"]
+		if !ok {
+			return nil, fmt.Errorf("could not determine default namespace: missing required 'namespace' in component chart")
+		}
+		defaultNamespace, ok := defaultNamespaceRaw.(string)
+		if !ok {
+			return nil, fmt.Errorf("could not determine default namespace: 'namespace' field in component chart is not a string")
+		}
+		install.Namespace = defaultNamespace
+	}
+
 	// Run install and generate manifests
 	release, err := install.Run(chart, values)
 	if err != nil {
