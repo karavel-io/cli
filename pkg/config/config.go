@@ -31,10 +31,10 @@ import (
 var ErrConfigParseFailed = errors.New("failed to parse Karavel config")
 
 type Config struct {
-	Version            string      `hcl:"version"`
-	Components         []Component `hcl:"component,block"`
-	HelmStableRepoUrl  string      `hcl:"stable_repo,optional"`
-	HelmUntableRepoUrl string      `hcl:"unstable_repo,optional"`
+	Version             string      `hcl:"version"`
+	Components          []Component `hcl:"component,block"`
+	HelmStableRepoUrl   string      `hcl:"stable_repo,optional"`
+	HelmUnstableRepoUrl string      `hcl:"unstable_repo,optional"`
 }
 
 func ReadFrom(logw io.Writer, filename string) (Config, error) {
@@ -87,7 +87,7 @@ func ReadFrom(logw io.Writer, filename string) (Config, error) {
 	}
 
 	c.HelmStableRepoUrl = helmw.GetRepoUrl(c.Version, c.HelmStableRepoUrl)
-	c.HelmUntableRepoUrl = helmw.GetRepoUrl("unstable", c.HelmUntableRepoUrl)
+	c.HelmUnstableRepoUrl = helmw.GetRepoUrl("unstable", c.HelmUnstableRepoUrl)
 
 	return c, nil
 }

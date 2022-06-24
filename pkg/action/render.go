@@ -81,8 +81,8 @@ func Render(ctx context.Context, params RenderParams) error {
 		return fmt.Errorf("failed to setup Karavel stable components repository: %w", err)
 	}
 
-	log.Debugf("Updating Karavel components unstable repository %s", cfg.HelmUntableRepoUrl)
-	ctx, err = addRepo(ctx, "unstable", cfg.HelmUntableRepoUrl)
+	log.Debugf("Updating Karavel components unstable repository %s", cfg.HelmUnstableRepoUrl)
+	ctx, err = addRepo(ctx, "unstable", cfg.HelmUnstableRepoUrl)
 	if err != nil {
 		return fmt.Errorf("failed to setup Karavel stable components repository: %w", err)
 	}
