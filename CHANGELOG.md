@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2022-06-27
+
 ### Changed
 
 - **BREAKING**: The `namespace` field in `karavel.hcl` has been made optional by falling back to the `namespace` value in each component's chart. This means components *must* provide it or rendering will fail when the namespace is omitted!
@@ -52,7 +54,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `karavel init` first implementation
 - `karavel render` first implementation
 
-[unreleased]: https://github.com/karavel-io/cli/compare/v0.3.0...HEAD
+[unreleased]: https://github.com/karavel-io/cli/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/karavel-io/cli/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/karavel-io/cli/releases/compare/0.2.1...v0.3.0
 [0.2.1]: https://github.com/karavel-io/cli/releases/compare/0.2.0...0.2.1
 [0.2.0]: https://github.com/karavel-io/cli/releases/compare/0.1.1...0.2.0
