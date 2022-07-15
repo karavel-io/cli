@@ -133,7 +133,7 @@ func TemplateChart(ctx context.Context, name string, options ChartOptions) ([]Ya
 	}
 
 	// Run install and generate manifests
-	release, err := install.Run(chart, values)
+	release, err := install.RunWithContext(ctx, chart, values)
 	if err != nil {
 		return nil, fmt.Errorf("helm install failed: %w", err)
 	}
@@ -142,8 +142,17 @@ func TemplateChart(ctx context.Context, name string, options ChartOptions) ([]Ya
 		return []YamlDoc{}, nil
 	}
 
+	if len(release.Hooks) > 0 {
+		logger.Debugf("processing %d hooks", len(release.Hooks))
+	}
+
+	manifests := release.Manifest
+	for _, hook := range release.Hooks {
+		manifests = strings.Join([]string{manifests, hook.Manifest}, "\n---\n")
+	}
+
 	// Decode generated manifests
-	dec := yaml.NewDecoder(strings.NewReader(release.Manifest))
+	dec := yaml.NewDecoder(strings.NewReader(manifests))
 	var docs []YamlDoc
 	for {
 		var doc YamlDoc
@@ -156,6 +165,7 @@ func TemplateChart(ctx context.Context, name string, options ChartOptions) ([]Ya
 		}
 		docs = append(docs, doc)
 	}
+
 	return docs, nil
 }
 
