@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.1] - 2022-07-15
 
 - Fixes regression that excluded Helm Hooks from rendering ([#12](https://github.com/karavel-io/cli/pull/12))
-- 
+
 ## [0.4.0] - 2022-06-27
 
 ### Changed
@@ -58,7 +58,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `karavel init` first implementation
 - `karavel render` first implementation
 
-[unreleased]: https://github.com/karavel-io/cli/compare/v0.4.0...HEAD
+[unreleased]: https://github.com/karavel-io/cli/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/karavel-io/cli/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/karavel-io/cli/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/karavel-io/cli/releases/compare/0.2.1...v0.3.0
 [0.2.1]: https://github.com/karavel-io/cli/releases/compare/0.2.0...0.2.1
