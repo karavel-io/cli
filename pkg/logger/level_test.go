@@ -44,5 +44,4 @@ func TestIsLevelActive(t *testing.T) {
 	assert.False(t, IsLevelActive(current, LvlInfo))
 	assert.False(t, IsLevelActive(current, LvlWarn))
 	assert.True(t, IsLevelActive(current, LvlError))
-
 }
