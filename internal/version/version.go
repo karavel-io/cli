@@ -17,23 +17,26 @@ package version
 import (
 	"runtime"
 	"runtime/debug"
+	"time"
 )
 
 var (
-	version      = ""
-	gitCommit    = ""
-	gitTreeState = ""
-	buildDate    = ""
+	version       = ""
+	gitCommit     = ""
+	gitTreeState  = ""
+	gitCommitDate = ""
+	buildDate     = time.Now().UTC().Format(time.RFC3339)
 )
 
 type Version struct {
-	Version      string
-	GitCommit    string
-	GitTreeState string
-	BuildDate    string
-	Arch         string
-	Os           string
-	GoVersion    string
+	Version       string
+	GitCommit     string
+	GitTreeState  string
+	GitCommitDate string
+	BuildDate     string
+	Arch          string
+	Os            string
+	GoVersion     string
 }
 
 func Get() Version {
@@ -47,7 +50,7 @@ func Get() Version {
 			case "vcs.revision":
 				gitCommit = setting.Value
 			case "vcs.time":
-				buildDate = setting.Value
+				gitCommitDate = setting.Value
 			case "vcs.modified":
 				if setting.Value == "true" {
 					gitTreeState = "dirty"
@@ -59,13 +62,14 @@ func Get() Version {
 	}
 
 	return Version{
-		Version:      version,
-		GitCommit:    gitCommit,
-		GitTreeState: gitTreeState,
-		BuildDate:    buildDate,
-		Arch:         runtime.GOARCH,
-		Os:           runtime.GOOS,
-		GoVersion:    runtime.Version(),
+		Version:       version,
+		GitCommit:     gitCommit,
+		GitTreeState:  gitTreeState,
+		GitCommitDate: gitCommitDate,
+		BuildDate:     buildDate,
+		Arch:          runtime.GOARCH,
+		Os:            runtime.GOOS,
+		GoVersion:     runtime.Version(),
 	}
 }
 
