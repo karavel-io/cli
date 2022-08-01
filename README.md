@@ -69,7 +69,7 @@ By appending a refernce at the end of the Flake URL you can select:
  - a specific tag/version: `github:karavel-io/cli/v0.4.1`
  - a Git branch: `github:karavel-io/cli/main`
 
-More information on references can be found on the [Flakes manual](https://nixos.org/manual/nix/stable/command-ref/new-cli/nix3-flake.html#flake-references)
+More information on references can be found on the [Flakes manual](https://nixos.org/manual/nix/stable/command-ref/new-cli/nix3-flake.html#flake-references).
 
 ### Docker
 
