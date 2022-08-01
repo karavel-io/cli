@@ -29,6 +29,48 @@ Use "karavel [command] --help" for more information about a command.
 
 Binaries for all mainstream operating systems can be downloaded from [GitHub](https://github.com/karavel-io/cli/releases).
 
+### Nix
+
+The CLI is packaged as a [Flake](https://nixos.wiki/wiki/Flakes). You can run it as a simple command:
+
+`nix run github:karavel-io/cli <regular karavel arguments>`
+
+e.g.
+
+`nix run github:karavel-io/cli render --debug`
+
+Or you can import it in another `flake.nix`, e.g. to add it to a [devShell](https://nixos.wiki/wiki/Development_environment_with_nix-shell):
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs";
+    flake-utils.url = "github:numtide/flake-utils";
+    karavel.url = "github:karavel-io/cli";
+  };
+
+  outputs = { self, nixpkgs, flake-utils, karavel }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = nixpkgs.legacyPackages.${system};
+        karavel-cli = karavel.defaultPackage.${system};
+      in {
+        devShell = pkgs.mkShell { buildInputs = with pkgs; [
+          karavel-cli
+          kubectl
+          kustomize
+        ];
+        };
+      });
+}
+```
+
+By appending a refernce at the end of the Flake URL you can select:
+ - a specific tag/version: `github:karavel-io/cli/v0.4.1`
+ - a Git branch: `github:karavel-io/cli/main`
+
+More information on references can be found on the [Flakes manual](https://nixos.org/manual/nix/stable/command-ref/new-cli/nix3-flake.html#flake-references)
+
 ### Docker
 
 The CLI is packaged in a container image and published on [Quay](https://quay.io/karavel/cli) and [GitHub](https://github.com/karavel-io/cli/pkgs/container/cli).
