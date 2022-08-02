@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Update `github.com/containerd/containerd` to 1.6.6 to fix CVE-2022-31030
+
 ## [0.4.2] - 2022-08-02
 
 - Split commit date and build date ([#14](https://github.com/karavel-io/cli/pull/14))
