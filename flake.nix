@@ -29,7 +29,7 @@
               "-X github.com/karavel-io/cli/internal/version.version=${version}"
             ];
 
-            vendorSha256 = "sha256-QWg69m8Ky8rZjX/B7T0yCBzfz6prZ2gy0HK6IrsBL5I==";
+            vendorSha256 = "sha256-8Ty26vr/J1SgY/+W4ZpMM1RpxrXesByXRTylOqgpYuc=";
           };
         });
 
