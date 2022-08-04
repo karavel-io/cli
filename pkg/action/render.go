@@ -23,7 +23,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"sync"
 
 	argocd "github.com/karavel-io/cli/internal/argo"
 	"github.com/karavel-io/cli/internal/gitutils"
@@ -118,10 +117,8 @@ func Render(ctx context.Context, params RenderParams) error {
 		}
 	}
 
-	var wg sync.WaitGroup
-	ch := make(chan utils.Pair[string, error])
+	batch := utils.NewBatchJob()
 	appNames := make(chan string)
-	done := make(chan bool)
 
 	var apps []string
 	var renderDirs []string
@@ -164,18 +161,14 @@ func Render(ctx context.Context, params RenderParams) error {
 		}
 		delete(dirs, c.Name())
 
-		wg.Add(1)
-		go func(comp *plan.Component) {
-			defer wg.Done()
-
+		batch.Add(utils.BindParam(func(comp *plan.Component) error {
 			msg := fmt.Sprintf("failed to render component '%s'", comp.Name())
 			outdir := filepath.Join(vendorDir, comp.Name())
 			log.Infof("Rendering component %s at %s", comp.DebugLabel(), strings.ReplaceAll(outdir, filepath.Dir(workdir)+"/", ""))
 			log.Debugf("Component %s params: %s", comp.DebugLabel(), comp.Params())
 
 			if err := comp.Render(ctx, log, outdir); err != nil {
-				ch <- utils.NewPair(msg, err)
-				return
+				return fmt.Errorf("%s: %w", msg, err)
 			}
 
 			if argoEnabled {
@@ -183,51 +176,45 @@ func Render(ctx context.Context, params RenderParams) error {
 				appFile := comp.Name() + ".yml"
 				appNames <- appFile
 				appFullPath := filepath.Join(appsDir, appFile)
-				// if the application file already exists, we skip it. It has already been created
-				// and we don't want to overwrite any changes the user may have made
+				// If the application file already exists, we skip it. It has already been created,
+				// so we don't want to overwrite any changes the user may have made
 				_, err = os.Stat(appFullPath)
-				if !os.IsNotExist(err) {
-					ch <- utils.NewPair(msg, err)
-					return
+				if err != nil && !os.IsNotExist(err) {
+					return fmt.Errorf("%s: %w", msg, err)
 				}
 
 				argoNs := argo.Namespace()
 				vendorPath := path.Join(repoPath, "vendor", comp.Name())
 				if err := comp.RenderApplication(argoNs, repoUrl, vendorPath, appFullPath); err != nil {
-					ch <- utils.NewPair(msg, err)
+					return fmt.Errorf("%s: %w", msg, err)
 				}
 			}
-		}(c)
+
+			return nil
+		}, c))
 	}
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
+	batch.Add(func() error {
 		for dir := range dirs {
 			log.Debugf("deleting extraneous directory '%s' in vendor", dir)
 			if err := os.RemoveAll(filepath.Join(vendorDir, dir)); err != nil {
-				ch <- utils.NewPair(fmt.Sprintf("failed to delete extraneous directory '%s' in vendor", dir), err)
+				return fmt.Errorf("failed to delete extraneous directory '%s' in vendor: %w", dir, err)
 			}
 		}
-	}()
+		return nil
+	})
 
-	go func() {
-		wg.Wait()
-		done <- true
-	}()
+	jobError := utils.RunAsync(batch.Run)
 
 	open := true
 	for open {
 		select {
 		case name := <-appNames:
 			apps = append(apps, name)
-		case pair := <-ch:
-			err := pair.B()
+		case err := <-jobError:
 			if err != nil {
-				return fmt.Errorf("%s: %w", pair.A(), err)
+				return err
 			}
-		case <-done:
 			open = false
 		}
 	}
@@ -267,7 +254,6 @@ func Render(ctx context.Context, params RenderParams) error {
 				return fmt.Errorf("failed to render bootstrap application: %w", err)
 			}
 		}
-
 	}
 
 	if err := utils.RenderKustomizeFile(workdir, renderDirs, predicate.StringOr(predicate.IsStringInSlice(renderDirs), predicate.StringHasPrefix("vendor"))); err != nil {
