@@ -54,6 +54,7 @@ func main() {
 	app.AddCommand(NewInitCommand())
 	app.AddCommand(NewRenderCommand())
 	app.AddCommand(NewVersionCommand())
+	app.AddCommand(NewBootstrapCommand())
 
 	ctx, cancel := context.WithTimeout(logger.WithLogger(context.Background(), log), 15*time.Minute)
 	defer cancel()
