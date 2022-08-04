@@ -24,7 +24,7 @@
             "-X github.com/karavel-io/cli/internal/version.version=${version}"
           ];
 
-          vendorSha256 = "sha256-8Ty26vr/J1SgY/+W4ZpMM1RpxrXesByXRTylOqgpYuc=";
+          vendorSha256 = "sha256-bzJVVdtCIWY+JcGRPo3aD+FIQotSOCvzvyg7FseSyQc=";
         };
 
         apps.default = utils.lib.mkApp { drv = self.packages.${system}.default; };
